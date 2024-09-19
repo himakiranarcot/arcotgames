@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Games Chessboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #000000; /* Neon Purple Background */
+            color: #fff; /* Ensure text is visible on neon background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif; /* Ensure consistent font family */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            position: relative; /* Ensure positioning context for the star and bubble effects */
+        }
+        .header-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .header-container img {
+            width: 100%;
+            max-height: 50vh; /* Maximum height relative to viewport height */
+            object-fit: cover; /* Cover the container */
+            z-index: 1; /* Ensure image is below the title */
+            animation: float 3s ease-in-out infinite; /* More noticeable floating animation */
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px); /* Increased movement for a more noticeable effect */
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        .welcome-title {
+            font-size: 2rem; /* Adjusted font size */
+            font-weight: 700; /* Bold font weight */
+            margin: 0;
+            color: #fff; /* Ensure text is visible on dark background */
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2; /* Ensure title is above the image */
+            background: rgba(0, 0, 0, 0.5); /* Optional: Add background for readability */
+            padding: 10px 20px; /* Add padding for better visual appeal */
+            border-radius: 10px; /* Rounded corners */
+            font-family: 'Cinzel', serif; /* Modern, serif font family */
+            max-width: 90%; /* Ensure it doesn't overflow */
+            white-space: nowrap; /* Prevent text wrapping */
+            word-wrap: break-word; /* Allow breaking on long words */
+        }
+        .search-bar {
+            position: relative;
+            max-width: 1000px; /* Wider width for larger screens */
+            width: 90%; /* Ensure it is centered */
+            margin-top: 20px; /* Space below the title */
+            display: flex;
+            justify-content: center; /* Center-align the search bar */
+        }
+        .search-bar input {
+            padding-left: 40px; /* Increased padding for the search icon */
+            border-radius: 25px;
+            border: none;
+            height: 50px; /* Increased height for a more prominent look */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 100%; /* Ensure the input fills the search bar */
+            background-color: #ffffff; /* White background for the input */
+            color: #333; /* Dark text color for contrast */
+            font-size: 1.1rem; /* Slightly larger font size */
+            outline: none;
+            transition: box-shadow 0.3s, border-color 0.3s; /* Smooth transition */
+        }
+        .search-bar input:focus {
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.8), 0 0 10px rgba(0, 0, 255, 0.8); /* Pink and purple neon glow effect */
+            border: 2px solid rgba(255, 0, 255, 0.8); /* Pink border on focus */
+        }
+        .search-bar .fa-search {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #007bff; /* Neon blue color */
+            font-size: 1.4rem; /* Adjusted size */
+            text-shadow: 0 0 5px #007bff; /* Glowing effect */
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+            gap: 20px;
+            padding: 20px;
+            background-color: #1a1a1a; /* Slightly darker background for better contrast */
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto; /* Center the grid within the container */
+        }
+        .game-card {
+            background-color: #000000; /* Neon Purple Background for the card */
+            border: 1px solid #6a0dad; /* Darker shade of neon purple for border */
+            border-radius: 12px; /* Slightly larger radius for a modern look */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Enhanced 3D shadow */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s; /* Smooth transition */
+        }
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.8), 0 0 20px rgba(138, 43, 226, 0.8); /* Pink and purple neon glow */
+        }
+        .game-card img {
+            width: 100%;
+            height: 180px; /* Adjusted height for better visual balance */
+            object-fit: cover;
+        }
+        .game-card-body {
+            padding: 20px; /* Increased padding for a more spacious feel */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1; /* Ensure body grows to fill the available space */
+        }
+        .game-card-title {
+            font-size: 1.6rem; /* Slightly larger font size */
+            margin-bottom: 10px;
+            color: #fff; /* White text for contrast */
+            font-weight: bold; /* Increased font weight for emphasis */
+            text-align: center; /* Center align the text */
+            padding: 10px 0; /* Add padding for spacing */
+            border-bottom: 2px solid #6a0dad; /* Optional: Add a border bottom for emphasis */
+        }
+        .game-card-text {
+            font-size: 1.2rem; /* Slightly larger font size for modern look */
+            margin-bottom: 15px;
+            color: #e0e0e0; /* Lighter color for better readability */
+            line-height: 1.6; /* Increase line-height for better readability */
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6); /* More noticeable text shadow */
+            font-family: 'Arial', sans-serif; /* Modern font family */
+        }
+        .btn-play {
+            background: linear-gradient(45deg, #007bff, #0056b3); /* Gradient background */
+            color: #fff;
+            border: none;
+            border-radius: 25px; /* Rounded corners */
+            padding: 12px 24px;
+            font-size: 1.1rem; /* Slightly larger font size */
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Allows padding to apply */
+            transition: background 0.3s, box-shadow 0.3s; /* Smooth transition */
+        }
+        .btn-play:hover {
+            background: linear-gradient(45deg, #0056b3, #003d7a); /* Darker gradient on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slight shadow effect */
+        }
+        /* Center-align button within the card body */
+        .game-card-body .btn-play {
+            margin-top: auto; /* Push button to the bottom of the card body */
+            align-self: center; /* Center the button horizontally */
+        }
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .header-container img {
+                max-height: 40vh; /* Adjust height for medium-sized screens */
+            }
+        }
+        @media (max-width: 992px) {
+            .welcome-title {
+                font-size: 1.8rem; /* Adjust font size for smaller screens */
+                padding: 8px 16px; /* Adjust padding */
+            }
+        }
+        @media (max-width: 768px) {
+            .search-bar input {
+                font-size: 1rem; /* Smaller font size for tablets */
+            }
+            .game-card img {
+                height: 150px; /* Adjusted height for smaller screens */
+            }
+            .welcome-title {
+                font-size: 1.6rem; /* Smaller font size for mobile */
+                padding: 6px 12px; /* Adjust padding */
+            }
+        }
+        @media (max-width: 576px) {
+            .search-bar input {
+                font-size: 0.9rem; /* Smaller font size for mobile devices */
+            }
+            .game-card {
+                border-radius: 8px; /* Smaller border radius for mobile */
+            }
+            .game-card-title {
+                font-size: 1.4rem; /* Smaller title font size */
+            }
+            .game-card-text {
+                font-size: 1rem; /* Smaller text size */
+            }
+        }
+        /* Enhanced Bubble Effect */
+        .bubbles {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 100%;
+            height: 150px; /* Increased height for more bubble space */
+            overflow: hidden;
+            transform: translateX(-50%);
+            z-index: 0; /* Place bubbles behind the header image */
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            opacity: 0.8;
+            animation: bubble-rise 8s infinite;
+            animation-timing-function: ease-in-out; /* Smooth rising effect */
+        }
+        .bubble:nth-child(1) {
+            width: 50px;
+            height: 50px;
+            bottom: 0;
+            left: 10%;
+            animation-delay: 0s;
+            opacity: 0.7;
+        }
+        .bubble:nth-child(2) {
+            width: 70px;
+            height: 70px;
+            bottom: 0;
+            left: 25%;
+            animation-delay: 2s;
+            opacity: 0.8;
+        }
+        .bubble:nth-child(3) {
+            width: 90px;
+            height: 90px;
+            bottom: 0;
+            left: 40%;
+            animation-delay: 4s;
+            opacity: 0.6;
+        }
+        .bubble:nth-child(4) {
+            width: 60px;
+            height: 60px;
+            bottom: 0;
+            left: 60%;
+            animation-delay: 6s;
+            opacity: 0.7;
+        }
+        .bubble:nth-child(5) {
+            width: 80px;
+            height: 80px;
+            bottom: 0;
+            left: 75%;
+            animation-delay: 8s;
+            opacity: 0.8;
+        }
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-300px) scale(1.2); /* Increased rise distance and size for effect */
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-600px) scale(1); /* Further increase rise distance for effect */
+                opacity: 0;
+            }
+        }
+        /* Star Effect */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Ensure stars don't interfere with other elements */
+            z-index: 1; /* Place stars between bubbles and other content */
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            animation: star-float 10s infinite;
+        }
+        .star:nth-child(1) {
+            width: 10px;
+            height: 10px;
+            top: 10%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+        .star:nth-child(2) {
+            width: 15px;
+            height: 15px;
+            top: 30%;
+            left: 50%;
+            animation-delay: 2s;
+        }
+        .star:nth-child(3) {
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 70%;
+            animation-delay: 4s;
+        }
+        .star:nth-child(4) {
+            width: 12px;
+            height: 12px;
+            top: 70%;
+            left: 40%;
+            animation-delay: 6s;
+        }
+        @keyframes star-float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-100px) translateX(-50px) rotate(360deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(720deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <!-- Header Image -->
+        <img id="headerImage" src="https://i.imgur.com/YBfnNyo.jpg" alt="Arcot Games" />
+        <!-- Welcome Title -->
+        <h2 class="welcome-title">Level Up Your Fun: Dive into Free Games Now!</h2>
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for games..." />
+            <i class="fas fa-search"></i>
+        </div>
+        <!-- Bubble Effect -->
+        <div class="bubbles">
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+        </div>
+        <!-- Star Effect -->
+        <div class="stars">
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+        </div>
+    </div>
+
+    <!-- Games Grid -->
+    <div class="games-grid">
+        <!-- Existing Game Cards -->
+        <div class="card game-card">
+            <img src="https://w0.peakpx.com/wallpaper/608/728/HD-wallpaper-super-mario-character-mario-super-mario-games-ai-artist-artwork-digital-art.jpg" class="card-img-top" alt="Super Mario">
+            <div class="game-card-body">
+                <h5 class="card-title game-card-title">Super Mario</h5>
+                <p class="card-text game-card-text">Join Mario in his exciting adventures across the Mushroom Kingdom.</p>
+                <a href="https://supermarioplay.com" class="btn btn-play" target="_blank">Play Now</a>
+            </div>
+        </div> 
+
+    
+
+
+
+    
+
+    
+
+       
+
+
+
+
+
+<!-- New Game Cards -->
+            <!-- Warframe -->
+            <div class="card game-card">
+                <img src="https://www-static.warframe.com/images/longlanding/warframe-metacard.png
+" class="card-img-top" alt="Warframe">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Warframe</h5>
+                    <p class="card-text game-card-text">Join the fight against the Grineer in this action-packed space ninja game.</p>
+                    <a href="https://warframe.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- GTA 5 -->
+            <div class="card game-card">
+                <img src="https://www.hardwarezone.com.sg/thumbs/682628/b.jpg
+" class="card-img-top" alt="GTA 5">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">GTA 5</h5>
+                    <p class="card-text game-card-text">Experience the thrill of Los Santos in this epic open-world adventure.</p>
+                    <a href="https://gta5.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Call of Duty: Warzone -->
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/557/189/265/call-of-duty-warzone-xbox-one-call-of-duty-black-ops-hd-wallpaper-preview.jpg
+" class="card-img-top" alt="Call of Duty: Warzone ">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Call of Duty: Warzone</h5>
+                    <p class="card-text game-card-text">Fight for survival in this fast-paced battle royale game.</p>
+                    <a href="https://callofduty.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            
+            <!-- Fortnite -->
+            <div class="card game-card">
+                <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2020/12/fortnite-datamined-gnome-weapons.jpg
+"
+
+ class="card-img-top" alt="Fortnite">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Fortnite</h5>
+                    <p class="card-text game-card-text">Battle to be the last one standing in this popular battle royale game.</p>
+                    <a href="https://fortnite.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Splatoon 3 -->
+            <div class="card game-card">
+                <img src="https://images.alphacoders.com/113/1131450.png
+" class="card-img-top" alt="Splatoon 3">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Splatoon 3</h5>
+                    <p class="card-text game-card-text">Ink your way to victory in this vibrant and fast-paced shooter.</p>
+                    <a href="https://splatoon3.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- The King of Fighters XV -->
+            <div class="card game-card">
+                <img src="https://cdn1.epicgames.com/salesEvent/salesEvent/EGS_THEKINGOFFIGHTERSXV_SNKCORPORATION_S1_2560x1440-5d55ab8f79aeef9e9886bac3bbbf2204
+" class="card-img-top" alt="The King of Fighters XV">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">The King of Fighters XV</h5>
+                    <p class="card-text game-card-text">Fight your way through the ranks in this thrilling fighting game.</p>
+                    <a href="https://thekingoffightersxv.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- League of Legends -->
+            <div class="card game-card">
+                <img src="https://i.pinimg.com/736x/62/5e/78/625e78c52f4f8180698fb84439f700c9.jpg
+" class="card-img-top" alt="League of Legends">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">League of Legends</h5>
+                    <p class="card-text game-card-text">Join the battle in this popular multiplayer online battle arena game.</p>
+                    <a href="https://leagueoflegends.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Destiny 2 -->
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/185/587/642/destiny-2-destiny-games-hd-wallpaper-preview.jpg
+" class="card-img-top" alt="Destiny 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Destiny 2</h5>
+                    <p class="card-text game-card-text">Explore the stars and fight against alien enemies in this epic shooter.</p>
+                    <a href="https://destiny2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Dota 2 -->
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/432/267/666/dota-2-wallpaper-preview.jpg
+" class="card-img-top" alt="Dota 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Dota 2</h5>
+                    <p class="card-text game-card-text">Battle in the world of Dota 2, a leading multiplayer online battle arena game.</p>
+                    <a href="https://dota2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Rocket League -->
+            <div class="card game-card">
+                <img src="https://www.rocketleague.com/images/keyart/rl_evergreen.jpg
+" class="card-img-top" alt="Rocket League">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rocket League</h5>
+                    <p class="card-text game-card-text">Play soccer with rocket-powered cars in this high-flying game.</p>
+                    <a href="https://rocketleague.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Apex Legends -->
+            <div class="card game-card">
+                <img src="https://cdn1.epicgames.com/spt-assets/5dcd88f4e2094a698ebffa43438edc33/apex-legends-27abg.jpg
+" class="card-img-top" alt="Apex Legends">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Apex Legends</h5>
+                    <p class="card-text game-card-text">Battle to be the last one standing in this fast-paced battle royale.</p>
+                    <a href="https://apexlegends.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Genshin Impact -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/xSIhd2YGyqA/maxresdefault.jpg
+" class="card-img-top" alt="Genshin Impact">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Genshin Impact</h5>
+                    <p class="card-text game-card-text">Explore the vast world of Teyvat in this open-world action RPG.</p>
+                    <a href="https://genshin.mihoyo.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Counter-Strike 2 -->
+            <div class="card game-card">
+                <img src="https://gaming-cdn.com/images/products/13664/orig/counter-strike-2-pc-game-steam-cover.jpg?v=1695885435
+" class="card-img-top" alt="Counter-Strike 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Counter-Strike 2</h5>
+                    <p class="card-text game-card-text">Take on terrorists in this classic first-person shooter.</p>
+                    <a href="https://counter-strike2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- The Sims 4 -->
+            <div class="card game-card">
+                <img src="https://gepig.com/game_cover_460w/2003.jpg
+" class="card-img-top" alt="The Sims 4">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">The Sims 4</h5>
+                    <p class="card-text game-card-text">Create and control people in this life simulation game.</p>
+                    <a href="https://thesims.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Valorant -->
+            <div class="card game-card">
+                <img src="https://cdn.wallpapersafari.com/45/40/9x1XHL.jpg
+" class="card-img-top" alt="Valorant">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Valorant</h5>
+                    <p class="card-text game-card-text">Fight in tactical first-person shooter matches with unique characters.</p>
+                    <a href="https://valorant.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Diablo IV -->
+            <div class="card game-card">
+                <img src="https://4kwallpapers.com/images/wallpapers/diablo-iv-lilith-diablo-4-2022-games-1920x1200-5969.png
+" class="card-img-top" alt="Diablo IV">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Diablo IV</h5>
+                    <p class="card-text game-card-text">Delve into the dark world of Sanctuary in this action RPG.</p>
+                    <a href="https://diablo4.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Fall Guys -->
+            <div class="card game-card">
+                <img src="https://i0.wp.com/www.smartprix.com/bytes/wp-content/uploads/2022/06/FallGuys.jpg?ssl=1&quality=80&w=f
+" class="card-img-top" alt="Fall Guys">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Fall Guys</h5>
+                    <p class="card-text game-card-text">Compete in chaotic mini-games to be the last one standing.</p>
+                    <a href="https://fallguys.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Hearthstone -->
+            <div class="card game-card">
+                <img src="https://cdn-www.bluestacks.com/bs-images/featured_com.blizzard.wtcg.hearthstone.jpg
+" class="card-img-top" alt="Hearthstone">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Hearthstone</h5>
+                    <p class="card-text game-card-text">Play strategic card games in the Warcraft universe.</p>
+                    <a href="https://hearthstone.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Honkai: Star Rail -->
+            <div class="card game-card">
+                <img src="https://honkai.gg/wp-content/uploads/Second_Closed_Beta_Wallpaper.webp
+" class="card-img-top" alt="Honkai: Star Rail">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Honkai: Star Rail</h5>
+                    <p class="card-text game-card-text">Embark on a spacefaring adventure in this turn-based RPG.</p>
+                    <a href="https://honkai-star-rail.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Lost Ark -->
+            <div class="card game-card">
+                <img src="https://images.ctfassets.net/umhrp0op95v1/VvjFjkl41oG52Nf71hZbr/d500b23b0a44f96e95bad4f9fd73784a/LA_keyart-share-open_1200x630.jpg
+
+" class="card-img-top" alt="Lost Ark">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Lost Ark</h5>
+                    <p class="card-text game-card-text">Explore a vast world in this action-packed MMORPG.</p>
+                    <a href="https://lostark.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Roblox -->
+            <div class="card game-card">
+                <img src="https://wallpapers.com/images/featured/roblox-pictures-kr9dxy2z296bf7b9.jpg
+" class="card-img-top" alt="Roblox">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Roblox</h5>
+                    <p class="card-text game-card-text">Create and play games made by other users in this expansive platform.</p>
+                    <a href="https://roblox.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- RuneScape -->
+            <div class="card game-card">
+                <img src="https://images7.alphacoders.com/110/1102443.jpg
+" class="card-img-top" alt="RuneScape">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">RuneScape</h5>
+                    <p class="card-text game-card-text">Explore the fantasy world of Gielinor in this iconic MMORPG.</p>
+                    <a href="https://runescape.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Brawlhalla -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/WpPkmplf62A/maxresdefault.jpg
+" class="card-img-top" alt="Brawlhalla">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Brawlhalla</h5>
+                    <p class="card-text game-card-text">Fight to be the last one standing in this free-to-play platform fighter.</p>
+                    <a href="https://brawlhalla.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Dauntless -->
+            <div class="card game-card">
+                <img src="https://images2.alphacoders.com/119/1193799.jpg
+" class="card-img-top" alt="Dauntless">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Dauntless</h5>
+                    <p class="card-text game-card-text">Hunt down massive Behemoths in this action RPG.</p>
+                    <a href="https://dauntless.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Elden Ring -->
+            <div class="card game-card">
+                <img src="https://i.pinimg.com/736x/9d/a1/46/9da146bf6a2817a20d9e4cdd3f8fdb7e.jpg
+" class="card-img-top" alt="Elden Ring">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Elden Ring</h5>
+                    <p class="card-text game-card-text">Venture into a dark fantasy world in this epic action RPG.</p>
+                    <a href="https://eldenring.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 2 -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/xjjJkR17EHk/maxresdefault.jpg
+" class="card-img-top" alt="Subway Surfers">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Subway Surfers</h5>
+                    <p class="card-text game-card-text">Dash as fast as you can, avoid the trains, and collect coins.</p>
+                    <a href="https://subwaysurfers.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 3 -->
+            <div class="card game-card">
+                <img src="https://i0.wp.com/nerdizmo.ig.com.br/wp-content/uploads/2023/03/temple-run-na-unreal-engine-5.png?fit=950%2C500&ssl=1
+" class="card-img-top" alt="Temple Run">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Temple Run</h5>
+                    <p class="card-text game-card-text">Run, dodge, and jump through ancient temples to escape the evil demons.</p>
+                    <a href="https://templerun.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 4 -->
+            <div class="card game-card">
+                <img src="https://cdn6.aptoide.com/imgs/d/f/4/df4829dde82b794523d3ee5c8f86c24c_fgraphic.png
+">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Talking Tom Gold Run</h5>
+                    <p class="card-text game-card-text">Join Talking Tom in his gold-filled adventure, running and collecting coins.</p>
+                    <a href="https://talkingtomgoldrun.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 5 -->
+            <div class="card game-card">
+                <img src="https://www.emulatorpc.com/wp-content/uploads/2022/10/stickman-hook-pc-full-version-1.jpg
+" class="card-img-top" alt="Stickman Hook">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Hook</h5>
+                    <p class="card-text game-card-text">Swing through the levels as a stickman and reach the finish line.</p>
+                    <a href="https://stickmanhook.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 6 -->
+            <div class="card game-card">
+                <img src="https://games.lol/wp-content/uploads/2023/01/rail-rush-pc-full-version.jpg"
+ class="card-img-top" alt="Rail Rush">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rail Rush</h5>
+                    <p class="card-text game-card-text">Ride the rails, avoid obstacles, and collect valuable gems.</p>
+                    <a href="https://railrush.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 7 -->
+            <div class="card game-card">
+                <img src="https://cdn6.aptoide.com/imgs/5/e/c/5ecadcf2c6f696841a5f03cd54abd50e.png
+" class="card-img-top" alt="Jetpack Joyride">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Jetpack Joyride</h5>
+                    <p class="card-text game-card-text">Fly through the sky with your jetpack, dodging obstacles and collecting coins.</p>
+                    <a href="https://jetpackjoyride.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 8 -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/DBY9C08bbgQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDfecp7UpM4a-vfBuvWSg1zmMUZMw
+" class="card-img-top" alt="Subway Princess Runner">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Subway Princess Runner</h5>
+                    <p class="card-text game-card-text">Help the princess run through the subway while avoiding obstacles and collecting coins.</p>
+                    <a href="https://subwayprincessrunner.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 9 -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/KsyQBXdkAuM/maxresdefault.jpg
+" class="card-img-top" alt="Monkey Mart">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Monkey Mart</h5>
+                    <p class="card-text game-card-text">Manage your own store, buy products, and serve customers in Monkey Mart.</p>
+                    <a href="https://monkeymart.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 10 -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/XuCHvxzaysY/maxresdefault.jpg
+" class="card-img-top" alt="Sonic Dash">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Sonic Dash</h5>
+                    <p class="card-text game-card-text">Help Sonic run through the levels at lightning speed, collecting rings and avoiding obstacles.</p>
+                    <a href="https://sonicdash.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 11 -->
+            <div class="card game-card">
+                <img src="https://webgamer.io/games/vectaria-io/vectaria-io.1280x.85pc.webp
+" class="card-img-top" alt="Vectaria.io">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Vectaria.io</h5>
+                    <p class="card-text game-card-text">Engage in exciting battles and explore the world of Vectaria in this multiplayer game.</p>
+                    <a href="https://vectaria.io" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 12 -->
+            <div class="card game-card">
+                <img src="https://apkdone.com/wp-content/uploads/2020/09/Agent-Dash-poster.jpg
+" class="card-img-top" alt="Agent Dash">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Agent Dash</h5>
+                    <p class="card-text game-card-text">Play as a secret agent and complete thrilling missions in this action-packed game.</p>
+                    <a href="https://agentdash.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 13 -->
+            <div class="card game-card">
+                <img src="http://dash.coolsmartphone.com/wp-content/uploads/2013/12/despicable-me-1.png
+" class="card-img-top" alt="Despicable Me">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Despicable Me</h5>
+                    <p class="card-text game-card-text">Join Gru and his Minions in their mischievous adventures.</p>
+                    <a href="https://despicableme.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 14 -->
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/_bxWHYcv4UA/maxresdefault.jpg
+" class="card-img-top" alt="Dreadhead Parker">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Dreadhead Parker</h5>
+                    <p class="card-text game-card-text">Help Parker dodge traffic and complete his daring escape.</p>
+                    <a href="https://dreadheadparker.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 15 -->
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/277/123/645/games-wallpaper-preview.jpg
+" class="card-img-top" alt="Rayman Jungle Run">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rayman Jungle Run</h5>
+                    <p class="card-text game-card-text">Jump, run, and explore the jungle with Rayman in this captivating adventure.</p>
+                    <a href="https://raymanjunglerun.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 16 -->
+            <div class="card game-card">
+                <img src="https://image.winudf.com/v2/image1/Y29tLmRldnNpc3RlcnMuY2tfYmFubmVyXzE2MDcwMzMzNDVfMDc2/image?fakeurl=1
+" class="card-img-top" alt="Cookie Run">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Cookie Run</h5>
+                    <p class="card-text game-card-text">Run and jump with your favorite cookie characters, dodging obstacles and collecting coins.</p>
+                    <a href="https://cookierun.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 17 -->
+            <div class="card game-card">
+                <img src="https://cdn.pixabay.com/photo/2020/08/26/09/18/chess-5519065_1280.jpg
+" class="card-img-top" alt="Chess">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Chess</h5>
+                    <p class="card-text game-card-text">Play the classic game of chess, strategize, and checkmate your opponent.</p>
+                    <a href="https://chess.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <!-- Game 18 -->
+            <div class="card game-card">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/1*vFE0lZvqxYcyOd3-xiCnQQ.jpeg
+" class="card-img-top" alt="Om Nom Run">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Om Nom Run</h5>
+                    <p class="card-text game-card-text">Help Om Nom run through the levels and collect candies in this exciting game.</p>
+                    <a href="https://omnomrun.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+<!-- Words with Friends 2 -->
+            <div class="card game-card">
+                <img src="https://games.lol/wp-content/uploads/2021/04/words-with-friends-2-pc-full-version.jpg
+" class="card-img-top" alt="Words with Friends 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Words with Friends 2</h5>
+                    <p class="card-text game-card-text">Challenge your friends in this classic word-building game.</p>
+                    <a href="https://wordswithfriends2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="card game-card">
+                <img src="https://m.media-amazon.com/images/I/81BqE97ukaL.png" class="card-img-top" alt="Save Dogogo">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Save Dogogo</h5>
+                    <p class="card-text game-card-text">Help Dogogo in this thrilling rescue mission.</p>
+                    <a href="https://savedogogo.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www4.minijuegosgratis.com/v3/games/thumbnails/224725_1.jpg" class="card-img-top" alt="Match Arena">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Match Arena</h5>
+                    <p class="card-text game-card-text">Compete in the ultimate match battles and emerge victorious.</p>
+                    <a href="https://matcharena.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.y9freegames.com/wp-content/uploads/thumbs/custom/R/Raft-Wars-Multiplayer.jpg" class="card-img-top" alt="Raftwars Multiplayer">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Raftwars Multiplayer</h5>
+                    <p class="card-text game-card-text">Join friends in this epic raft warfare game.</p>
+                    <a href="https://raftwarsmultiplayer.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/925e2619124917380c918ab693cc7f23.png" class="card-img-top" alt="Misland">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Misland</h5>
+                    <p class="card-text game-card-text">Explore the mysterious world of Misland.</p>
+                    <a href="https://misland.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://w8.snokido.com/img/large/stickman-parkour-skyland.jpg" class="card-img-top" alt="Stickman Parkour Skyland">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Parkour Skyland</h5>
+                    <p class="card-text game-card-text">Navigate through challenging parkour courses in the sky.</p>
+                    <a href="https://stickmanparkourskyland.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/7c706aab103f937e6472d1b89f69e46a.png" class="card-img-top" alt="Return Portal">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Return Portal</h5>
+                    <p class="card-text game-card-text">Solve puzzles and find your way through the mysterious portals.</p>
+                    <a href="https://returnportal.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/fde16b3a57d9d0d93bcffc83578b5a38.png" class="card-img-top" alt="Cats Love Cake 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Cats Love Cake 2</h5>
+                    <p class="card-text game-card-text">Help the cats get their paws on the delicious cakes!</p>
+                    <a href="https://catslovecake2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.gamepix.com/games/cream/cover/cream.png?w=400" class="card-img-top" alt="Bad Ice Cream">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Bad Ice Cream</h5>
+                    <p class="card-text game-card-text">Avoid the pitfalls and collect fruits in this cool game.</p>
+                    <a href="https://badicecream.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1103210/capsule_616x353.jpg?t=1563495717" class="card-img-top" alt="We Become What We Behold">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">We Become What We Behold</h5>
+                    <p class="card-text game-card-text">A thought-provoking game about media influence and society.</p>
+                    <a href="https://webecome.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Additional Game Cards -->
+            <div class="card game-card">
+                <img src="https://cdn-1.webcatalog.io/catalog/poki-stickman-bike/poki-stickman-bike-social-preview.png?v=1714780523365" class="card-img-top" alt="Stickman Bike">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Bike</h5>
+                    <p class="card-text game-card-text">Ride through challenging tracks with your stickman bike.</p>
+                    <a href="https://stickmanbike.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/oWYPwoXkrfk/maxresdefault.jpg" class="card-img-top" alt="Fox Island Builder">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Fox Island Builder</h5>
+                    <p class="card-text game-card-text">Build and expand your island while helping the foxes.</p>
+                    <a href="https://foxislandbuilder.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.fancade.com/wiki/uploads/ropermartinmagni.png" class="card-img-top" alt="Roper">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Roper</h5>
+                    <p class="card-text game-card-text">Swing and rope your way through exciting levels.</p>
+                    <a href="https://roper.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn6.aptoide.com/imgs/7/f/d/7fdf386d4c36c5d1b76bbe7c896cf94b_fgraphic.png" class="card-img-top" alt="Idle Success">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Idle Success</h5>
+                    <p class="card-text game-card-text">Build your success empire while managing resources.</p>
+                    <a href="https://idlesuccess.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://games.kidzsearch.com/computer/thumbs/gamemntze-mad-gunz-online-game-13355-img.png" class="card-img-top" alt="Mad Gunz">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Mad Gunz</h5>
+                    <p class="card-text game-card-text">Engage in intense shooting battles with a variety of guns.</p>
+                    <a href="https://madgunz.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://geometrydash.io/data/image/game/chicken-merge.png" class="card-img-top" alt="Chicken Merge">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Chicken Merge</h5>
+                    <p class="card-text game-card-text">Merge chickens to create new and exciting types.</p>
+                    <a href="https://chickenmerge.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn.iogames.top/uploads/thumbnails/275x157_12.png" class="card-img-top" alt="Party Toons">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Party Toons</h5>
+                    <p class="card-text game-card-text">Have fun in a variety of mini-games with colorful toons.</p>
+                    <a href="https://partytoons.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.gamepix.com/games/archer-arcane/cover/archer-arcane.png?w=400" class="card-img-top" alt="Arcane Archer">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Arcane Archer</h5>
+                    <p class="card-text game-card-text">Master archery and magic to defeat powerful enemies.</p>
+                    <a href="https://arcanearcher.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.flipline.com/gamefiles/papaswingeriatogo/app_upsell_C.jpg" class="card-img-top" alt="Papa's Wingeria">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Papa's Wingeria</h5>
+                    <p class="card-text game-card-text">Serve delicious wings and build your restaurant empire.</p>
+                    <a href="https://papaswingeria.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://webgamer.io/games/wheat-farming/wheat-farming.1280x.85pc.webp" class="card-img-top" alt="Wheat Farming">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Wheat Farming</h5>
+                    <p class="card-text game-card-text">Cultivate wheat and manage your farming business.</p>
+                    <a href="https://wheatfarming.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/KEJusur65kA/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCLIXNdq6D8o0i7xi_KVOMgtFi-wg" class="card-img-top" alt="Eugene's Life">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Eugene's Life</h5>
+                    <p class="card-text game-card-text">Experience the life of Eugene and explore his world.</p>
+                    <a href="https://eugeneslife.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://files.brightestgames.com/games/image_large/2024/01/26/jungle-friends-315x237.jpg" class="card-img-top" alt="Jungle Friends">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Jungle Friends</h5>
+                    <p class="card-text game-card-text">Help jungle animals and make new friends in the wild.</p>
+                    <a href="https://junglefriends.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.nintendo.com/eu/media/images/10_share_images/games_15/nintendo_switch_download_software_1/2x1_NSwitchDS_WorldSoccerCup2022_image1600w.jpg" class="card-img-top" alt="A Small World Cup">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">A Small World Cup</h5>
+                    <p class="card-text game-card-text">Participate in a mini world cup tournament.</p>
+                    <a href="https://asmallworldcup.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.numuki.com/game/img/papa-s-pizzeria-1653.jpg" class="card-img-top" alt="Papa's Pizzeria">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Papa's Pizzeria</h5>
+                    <p class="card-text game-card-text">Cook and serve delicious pizzas in your pizzeria.</p>
+                    <a href="https://papaspizzeria.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://images.crazygames.com/cars-vs-skibidi-toilet/20230710174637/cars-vs-skibidi-toilet-cover?auto=format,compress&q=75&cs=strip" class="card-img-top" alt="Skibidi Shooter">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Skibidi Shooter</h5>
+                    <p class="card-text game-card-text">Shoot your way through various levels in this action-packed game.</p>
+                    <a href="https://skibidishooter.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://static.wikia.nocookie.net/fliplinestudios/images/e/ed/Burgeria_tg_upsell.jpg/revision/latest/scale-to-width-down/250?cb=20230630103503" class="card-img-top" alt="Papa's Burgeria">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Papa's Burgeria</h5>
+                    <p class="card-text game-card-text">Build and serve burgers to your customers in this fun game.</p>
+                    <a href="https://papasburgeria.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://assets.funnygames.org/0/115630/101581/672x448/idle-craft-3d.webp" class="card-img-top" alt="Idle Digging Tycoon">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Idle Digging Tycoon</h5>
+                    <p class="card-text game-card-text">Dig and manage resources to grow your tycoon empire.</p>
+                    <a href="https://idlediggingtycoon.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/ov6Pj1KeTF3oIBl_wRoyZef73hK5aLNJwZX6ne35ZpfgiBd8aUdnOAn9-scZ-1BpIg" class="card-img-top" alt="Emoji Sort Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Emoji Sort Master</h5>
+                    <p class="card-text game-card-text">Sort and match emojis in this fun and challenging game.</p>
+                    <a href="https://emojisortmaster.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/GsL4Ad6JSs4/mqdefault.jpg" class="card-img-top" alt="Jacksmith">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Jacksmith</h5>
+                    <p class="card-text game-card-text">Craft weapons and help your allies in this medieval adventure.</p>
+                    <a href="https://jacksmith.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn.content.play123.com/game-images/tiny-fishing_xl.jpg" class="card-img-top" alt="Tiny Fishing">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tiny Fishing</h5>
+                    <p class="card-text game-card-text">Catch as many fish as you can in this relaxing fishing game.</p>
+                    <a href="https://tinyfishing.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/02018885c1521dd2830683a0ecc86440.png" class="card-img-top" alt="Up Together">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Up Together</h5>
+                    <p class="card-text game-card-text">Work together to solve puzzles and rise to new heights.</p>
+                    <a href="https://uptogether.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/CO7lxk0gcOQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLByABkY8BvlZ8R6Kg4-XflkXq0flA" class="card-img-top" alt="Blumgi Dragon">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Blumgi Dragon</h5>
+                    <p class="card-text game-card-text">Embark on a dragon-fueled adventure with Blumgi.</p>
+                    <a href="https://blumgidragon.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.nintendo.com/eu/media/images/10_share_images/games_15/nintendo_switch_download_software_1/H2x1_NSwitchDS_RetroHighway.jpg
+" class="card-img-top" alt="Retro Highway">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Retro Highway</h5>
+                    <p class="card-text game-card-text">Drive down the retro highway and avoid obstacles.</p>
+                    <a href="https://retrohighway.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/taux4tWIQ-Q/maxresdefault.jpg" class="card-img-top" alt="G-Switch 3">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">G-Switch 3</h5>
+                    <p class="card-text game-card-text">Switch gravity and run through challenging levels.</p>
+                    <a href="https://gswitch3.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/L989S2QxXUU/maxresdefault.jpg" class="card-img-top" alt="Dino Game">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Dino Game</h5>
+                    <p class="card-text game-card-text">Help the dinosaur jump and dodge obstacles in this endless runner.</p>
+                    <a href="https://dinogame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/8Y-i_-t1H5Y/maxresdefault.jpg" class="card-img-top" alt="Blumgi Ball">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Blumgi Ball</h5>
+                    <p class="card-text game-card-text">Score points by bouncing the ball in this fun, fast-paced game.</p>
+                    <a href="https://blumgiball.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/OXAosmaoXQ0/maxresdefault.jpg" class="card-img-top" alt="Brain Test 3">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Brain Test 3</h5>
+                    <p class="card-text game-card-text">Challenge your brain with tricky puzzles and brain teasers.</p>
+                    <a href="https://braintest3.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://images.crazygames.com/house-of-hazards/20200910082214/house-of-hazards-cover?auto=format,compress&q=75&cs=strip" class="card-img-top" alt="House of Hazards">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">House of Hazards</h5>
+                    <p class="card-text game-card-text">Navigate through a house full of traps and obstacles.</p>
+                    <a href="https://houseofhazards.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:quality(100)/2023_11_30_638369456064049656_evoworld-io-thumbnail.jpg" class="card-img-top" alt="EvoWorld io (FlyorDie io)">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">EvoWorld io (FlyorDie io)</h5>
+                    <p class="card-text game-card-text">Evolve and survive in a world full of predators.</p>
+                    <a href="https://evoworld.io" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://lgames.littlegames.io/bgames/game_image/1712604706burger-bounty.webp" class="card-img-top" alt="Burger Bounty">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Burger Bounty</h5>
+                    <p class="card-text game-card-text">Cook and serve burgers to complete your bounty.</p>
+                    <a href="https://burgerbounty.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2291760/capsule_616x353.jpg?t=1700157490" class="card-img-top" alt="Papa's Freezeria">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Papa's Freezeria</h5>
+                    <p class="card-text game-card-text">Run your own ice cream shop and make customers happy.</p>
+                    <a href="https://papasfreezeria.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://static.playhop.com/images/0281c_1890793_ff8d6/0ae8263f2/2a0000017dd74a8a_a043f98/99d628a23053e24efc86_c3f92e/orig" class="card-img-top" alt="Like a King">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Like a King</h5>
+                    <p class="card-text game-card-text">Build your kingdom and become a legendary king.</p>
+                    <a href="https://likeaking.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/d2a3bbd1bb8aea542835f4f8a353d388.png" class="card-img-top" alt="Raft Wars">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Raft Wars</h5>
+                    <p class="card-text game-card-text">Battle against enemies on rafts and protect your treasure.</p>
+                    <a href="https://raftwars.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.gamepix.com/games/rooftop-snipers/cover/rooftop-snipers.png?w=400">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rooftop Snipers</h5>
+                    <p class="card-text game-card-text">Sniper shootouts on rooftops with fast-paced action.</p>
+                    <a href="https://rooftopsnipers.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/fzAJIagmiAc/maxresdefault.jpg" class="card-img-top" alt="Cow Bay">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Cow Bay</h5>
+                    <p class="card-text game-card-text">Manage your own cow farm and explore the bay.</p>
+                    <a href="https://cowbay.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://unoonline.io/upload/imgs/hide-and-smash.jpg" class="card-img-top" alt="Hide and Smash">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Hide and Smash</h5>
+                    <p class="card-text game-card-text">Hide from your enemies and smash them when they least expect it.</p>
+                    <a href="https://hideandsmash.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://lh3.googleusercontent.com/Ue-8_NIFMMoYx-YZEWzy9gdMJleNikcq9u9Fqvyna-pecXN1JYHvNrfq7Fju997ai6OLa85tvE0SN9rGmGU0S0AWLA=s1280-w1280-h800" class="card-img-top" alt="Getaway Shootout">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Getaway Shootout</h5>
+                    <p class="card-text game-card-text">Outrun and outshoot your opponents to escape from dangerous situations.</p>
+                    <a href="https://getawayshootout.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.microoyun.com/images/games/11-11-puzzle.jpg" class="card-img-top" alt="11-11">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">11-11</h5>
+                    <p class="card-text game-card-text">Solve the number puzzles and complete the challenges.</p>
+                    <a href="https://1111game.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/17caa8a7a1f913a7cc2b2a2e4ecfa53c.png" class="card-img-top" alt="Shape Fold">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Shape Fold</h5>
+                    <p class="card-text game-card-text">Fold shapes to fit them into their correct places.</p>
+                    <a href="https://shapefold.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/fwwAgB_3TrCw2Ye0XaqwQj9NiXqv_sTigqJQbx4LQSIExUcbPmqNoS5f1DrH6xipPds=w648-h364-rw" class="card-img-top" alt="Idle Lumber Inc">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Idle Lumber Inc</h5>
+                    <p class="card-text game-card-text">Manage your lumber company and expand your business.</p>
+                    <a href="https://idlumberinc.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://tcf.admeen.org/game/16000/15966/320x160/penalty-shooters-2.jpg" class="card-img-top" alt="Penalty Shooters X">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Penalty Shooters X</h5>
+                    <p class="card-text game-card-text">Score penalties and become the ultimate shooter.</p>
+                    <a href="https://penaltyshootersx.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn6.aptoide.com/imgs/5/e/4/5e4cc839d8522c0b5bc26cd8bb06c646_fgraphic.png" class="card-img-top" alt="Tiger Simulator 3D">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tiger Simulator 3D</h5>
+                    <p class="card-text game-card-text">Experience life as a tiger in a realistic 3D environment.</p>
+                    <a href="https://tigersimulator3d.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://w0.peakpx.com/wallpaper/740/454/HD-wallpaper-perfect-cozy-village-in-realmcraft-minecraft-style-game-open-world-game-gaming-playgames-realmcraft-pixel-games-mobile-games-sandbox-minecraft-games-action-game-minecrafters-pixel-art-thumbnail.jpg" class="card-img-top" alt="Village Craft">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Village Craft</h5>
+                    <p class="card-text game-card-text">Build and manage your own village in this crafting game.</p>
+                    <a href="https://villagecraft.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            
+            <!-- New Game Cards -->
+            <div class="card game-card">
+                <img src="https://playpokigame.com/storage/games/259f4b2aa3440dd408ca1db92996d787.jpeg" class="card-img-top" alt="Smash It">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Smash It</h5>
+                    <p class="card-text game-card-text">Smash and break objects in this satisfying game.</p>
+                    <a href="https://smashitgame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn-1.webcatalog.io/catalog/poki-gobble/poki-gobble-social-preview.png?v=1714780966235" class="card-img-top" alt="Gobble">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Gobble</h5>
+                    <p class="card-text game-card-text">Gobble up everything in sight in this fun game.</p>
+                    <a href="https://gobblegame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/ZZhvOt_N1iW2z063BcskM5bD5CtSTYecKm-YjKmlMFe7tPE5EKA2Cm7zUCV2zbGZiEI=w526-h296-rw" class="card-img-top" alt="Kawali Dress Up">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Kawali Dress Up</h5>
+                    <p class="card-text game-card-text">Dress up your Kawali character in stylish outfits.</p>
+                    <a href="https://kawalidressup.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cellgames.com/games/swingo.webp" class="card-img-top" alt="Swingo">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Swingo</h5>
+                    <p class="card-text game-card-text">Swing and navigate through challenging levels.</p>
+                    <a href="https://swingogame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/RFNNxPBuBho/maxresdefault.jpg" class="card-img-top" alt="Flip Bros">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Flip Bros</h5>
+                    <p class="card-text game-card-text">Flip and maneuver your way through obstacles.</p>
+                    <a href="https://flipbros.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/893570/capsule_616x353.jpg?t=1542188708" class="card-img-top" alt="Short Life">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Short Life</h5>
+                    <p class="card-text game-card-text">Navigate through dangerous levels with a short life.</p>
+                    <a href="https://shortlife.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://images.crazygames.com/games/gold-digger-frvr/cover-1608107647188.png?auto=format%2Ccompress&q=45&cs=strip&ch=DPR&w=1200&h=630&fit=crop" class="card-img-top" alt="Gold Digger FRVR">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Gold Digger FRVR</h5>
+                    <p class="card-text game-card-text">Dig for gold and valuable treasures in this mining adventure.</p>
+                    <a href="https://golddiggerfrvr.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/K7hqgOIZwPA/maxresdefault.jpg" class="card-img-top" alt="Poor Eddie">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Poor Eddie</h5>
+                    <p class="card-text game-card-text">Help Eddie overcome obstacles and improve his luck.</p>
+                    <a href="https://pooreddie.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://uruguayvideogames.com/wp-content/uploads/2023/03/game_stickfighter-1.jpg" class="card-img-top" alt="Stick Fighter">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stick Fighter</h5>
+                    <p class="card-text game-card-text">Battle with stickman fighters in this action-packed game.</p>
+                    <a href="https://stickfighter.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://tcf.admeen.org/game/18000/17554/400x246/soccer-skills-euro-cup-2021.webp" class="card-img-top" alt="Soccer Skills Champion League">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Soccer Skills Champion League</h5>
+                    <p class="card-text game-card-text">Show off your soccer skills in the champion league.</p>
+                    <a href="https://soccerskillschampion.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/uH-FW8vfXC8/maxresdefault.jpg" class="card-img-top" alt="Blumgi Rocket">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Blumgi Rocket</h5>
+                    <p class="card-text game-card-text">Launch your rocket and navigate through space.</p>
+                    <a href="https://blumgirocket.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn2.whatoplay.com/screenshots/58743_1594305501slide-1" class="card-img-top" alt="Maze: Path of Light">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Maze: Path of Light</h5>
+                    <p class="card-text game-card-text">Navigate through intricate mazes with glowing paths.</p>
+                    <a href="https://mazepathoflight.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://m.gjcdn.net/game-header/950/508437-8qetapzt-v4.jpg" class="card-img-top" alt="Stacktris">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stacktris</h5>
+                    <p class="card-text game-card-text">Stack blocks strategically in this Tetris-like puzzle game.</p>
+                    <a href="https://stacktris.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://littlealchemy2.com/static/img/little-alchemy-2-fb-thumbnail.jpg" class="card-img-top" alt="Little Alchemy 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Little Alchemy 2</h5>
+                    <p class="card-text game-card-text">Combine elements to create new items in this alchemy game.</p>
+                    <a href="https://littlealchemy2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://static.gameloop.com/img/74e5d064eca99a5db14a71554df86cef.jpg?imageMogr2/thumbnail/undefinedx266/format/webp" class="card-img-top" alt="Simply Prop Hunt">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Simply Prop Hunt</h5>
+                    <p class="card-text game-card-text">Hunt props or blend in as one in this fun game.</p>
+                    <a href="https://simplyprophunt.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/132/215/698/the-best-players-2016-football-lionel-messi-soccer-wallpaper-preview.jpg" class="card-img-top" alt="Football Masters">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Football Masters</h5>
+                    <p class="card-text game-card-text">Become a football master in this exciting soccer game.</p>
+                    <a href="https://footballmasters.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/HZm57FEACns/maxresdefault.jpg" class="card-img-top" alt="Shady Bears">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Shady Bears</h5>
+                    <p class="card-text game-card-text">Help the shady bears in their mysterious adventures.</p>
+                    <a href="https://shadybears.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://c4.wallpaperflare.com/wallpaper/243/323/700/tank-war-tiger-p-wallpaper-preview.jpg" class="card-img-top" alt="Tiger Tank">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tiger Tank</h5>
+                    <p class="card-text game-card-text">Command the Tiger Tank in this intense action game.</p>
+                    <a href="https://tigertankgame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.emulatorpc.com/wp-content/uploads/2022/12/odd-bot-out-pc-full-version.jpg" class="card-img-top" alt="Odd Bot Out">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Odd Bot Out</h5>
+                    <p class="card-text game-card-text">Help the odd bot navigate through challenging levels.</p>
+                    <a href="https://oddbotout.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/Hv6xjtI9gTs/maxresdefault.jpg" class="card-img-top" alt="Brain Test 2: Tricky Stories">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Brain Test 2: Tricky Stories</h5>
+                    <p class="card-text game-card-text">Solve tricky puzzles and test your brain skills.</p>
+                    <a href="https://braintest2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://archive.org/serve/impossible-quiz-deluxe-newgrounds/impossible-quiz-deluxe-newgrounds_screenshot.png" class="card-img-top" alt="The Impossible Quiz">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">The Impossible Quiz</h5>
+                    <p class="card-text game-card-text">Test your knowledge and problem-solving skills with this impossible quiz.</p>
+                    <a href="https://impossiblequiz.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://assets.funnygames.org/2/115342/101284/1200x630/pop-it-master.webp" class="card-img-top" alt="Pop it Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Pop it Master</h5>
+                    <p class="card-text game-card-text">Pop all the bubbles and become the master of this game.</p>
+                    <a href="https://popitmaster.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://o1.gombis.com/image/358d8e0a47fe750e73a6f22458be0b03.png?w=400&h=225&crop-to-fit&sa=jpg&q=65" class="card-img-top" alt="Merge Cyber Racers">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Merge Cyber Racers</h5>
+                    <p class="card-text game-card-text">Merge and race in a futuristic cyber world.</p>
+                    <a href="https://mergecyberracers.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <!-- New Game Cards -->
+            <div class="card game-card">
+                <img src="https://images.squarespace-cdn.com/content/v1/598b1d4ef9a61e39d195e6e1/1619110505057-TUOED8CKWMJCG0TWQW3P/SmashKarts001.png?format=1000w" class="card-img-top" alt="Smash Karts">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Smash Karts</h5>
+                    <p class="card-text game-card-text">Race and battle with other players in this fun kart game.</p>
+                    <a href="https://smashkarts.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://www.coolmathgames.com/sites/default/files/MotoX3M-Winter_OG-logo.jpg
+" class="card-img-top" alt="Moto X3M Winter">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Moto X3M Winter</h5>
+                    <p class="card-text game-card-text">Navigate through snowy obstacles in this thrilling bike game.</p>
+                    <a href="https://moto-x3m-winter.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://w0.peakpx.com/wallpaper/134/988/HD-wallpaper-video-game-friday-night-funkin.jpg
+" class="card-img-top" alt="Friday Night Funkin'">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Friday Night Funkin'</h5>
+                    <p class="card-text game-card-text">Show off your rhythm skills in this popular music game.</p>
+                    <a href="https://fridaynightfunkin.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://geometrydash.io/data/image/game/big-shot-boxing.jpg
+" class="card-img-top" alt="Big Shot Boxing">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Big Shot Boxing</h5>
+                    <p class="card-text game-card-text">Step into the ring and fight your way to the top.</p>
+                    <a href="https://bigshotboxing.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/b873d7ef85f5aef8c0067035d8c914f9.png
+" class="card-img-top" alt="Eat the World">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Eat the World</h5>
+                    <p class="card-text game-card-text">Gobble up everything in sight in this quirky game.</p>
+                    <a href="https://eattheworld.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/bNY9BP6fQQwbt2qcYDQP3A6RpzpezsXq3EPISwpJkYQ8oE5Ip0_svIXzrVd4v-8X_w
+" class="card-img-top" alt="Sausage Flip">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Sausage Flip</h5>
+                    <p class="card-text game-card-text">Flip sausages and overcome challenges in this fun game.</p>
+                    <a href="https://sausageflip.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn1.idcgames.com/storage/image/1002/thumb_slider/default.png
+" class="card-img-top" alt="Block Post">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Block Post</h5>
+                    <p class="card-text game-card-text">Place blocks strategically to solve puzzles.</p>
+                    <a href="https://blockpost.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://static.wikia.nocookie.net/apps/images/3/36/Retro_Bowl.png/revision/latest?cb=20211107192645
+" class="card-img-top" alt="Retro Bowl College">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Retro Bowl College</h5>
+                    <p class="card-text game-card-text">Play college football with retro-style graphics.</p>
+                    <a href="https://retrobowlcollege.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://amongus2.io/upload/imgs/screenshot_1112.png
+" class="card-img-top" alt="SimplyUp.io">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">SimplyUp.io</h5>
+                    <p class="card-text game-card-text">A simple yet engaging game with fun mechanics.</p>
+                    <a href="https://simplyup.io" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://arpubrothers.com/blog/wp-content/uploads/2024/04/My-Perfect-Hotel-source-.jpeg
+" class="card-img-top" alt="My Perfect Hotel">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">My Perfect Hotel</h5>
+                    <p class="card-text game-card-text">Build and manage your own perfect hotel.</p>
+                    <a href="https://myperfecthotel.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/y8V_BkpJ-u0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBXvhxFfvR8flsbAZO0qJYyUpGKaw
+" class="card-img-top" alt="Stickman Crazy Box">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Crazy Box</h5>
+                    <p class="card-text game-card-text">Enjoy crazy adventures with stickman characters.</p>
+                    <a href="https://stickmancrazybox.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=1200,height=1200,fit=cover,f=png/3d06d8c1d2527bb97d3990d949c9e05b.jfif
+" class="card-img-top" alt="Anycolor">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Anycolor</h5>
+                    <p class="card-text game-card-text">A colorful game with creative challenges.</p>
+                    <a href="https://anycolor.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://assets.funnygames.org/6/113806/96456/672x448/moto-x3m-pool-party.webp
+" class="card-img-top" alt="Moto X3M 5 Pool Party">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Moto X3M 5 Pool Party</h5>
+                    <p class="card-text game-card-text">Enjoy pool party-themed biking challenges.</p>
+                    <a href="https://moto-x3m-5-pool-party.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://avatars.mds.yandex.net/get-games/10152950/2a0000018c5d0701a0f0a3779ff8f12ee04c/orig
+" class="card-img-top" alt="Cats Drop">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Cats Drop</h5>
+                    <p class="card-text game-card-text">Drop cats into positions to solve puzzles.</p>
+                    <a href="https://catsdrop.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Additional Game Cards -->
+            <div class="card game-card">
+                <img src="https://www.gameroco.com/uploads/images/top-speed-racing-3d-8529.jpeg
+" class="card-img-top" alt="Top Speed 3D">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Top Speed 3D</h5>
+                    <p class="card-text game-card-text">Experience high-speed racing and thrilling car chases.</p>
+                    <a href="https://topspeed3d.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.y8.com/cloud/v2-y8-thumbs-big-thumbnails-001/126719/big.gif
+" class="card-img-top" alt="Basketball Stars">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Basketball Stars</h5>
+                    <p class="card-text game-card-text">Compete in exciting basketball matches with players from around the world.</p>
+                    <a href="https://basketballstars.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/7b68e502320e00b0efa92842d01dbd20.png
+" class="card-img-top" alt="Battle Wheels">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Battle Wheels</h5>
+                    <p class="card-text game-card-text">Engage in intense vehicular combat and strategic battles.</p>
+                    <a href="https://battlewheels.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://png.pngtree.com/background/20230611/original/pngtree-colorful-puzzle-game-with-colorful-blocks-picture-image_3162661.jpg
+" class="card-img-top" alt="Blocky Puzzle">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Blocky Puzzle</h5>
+                    <p class="card-text game-card-text">Solve challenging puzzles with colorful block pieces.</p>
+                    <a href="https://blockypuzzle.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/0654ee12cde475bc427e46fdf22f1c5d.png
+" class="card-img-top" alt="Vortelli's Pizza">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Vortelli's Pizza</h5>
+                    <p class="card-text game-card-text">Manage a pizza restaurant and serve delicious pizzas to your customers.</p>
+                    <a href="https://vortellispizza.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://yohoho.io/img/banner1024x512.jpg" class="card-img-top" alt="YoHoHo.io">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">YoHoHo.io</h5>
+                    <p class="card-text game-card-text">Join pirate battles and become the ultimate treasure hunter.</p>
+                    <a href="https://yohoho.io" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://t3.ftcdn.net/jpg/05/57/29/82/360_F_557298226_SiaYfWmSKT421xnIC5K2H8SH6iI0Do5U.jpg" class="card-img-top" alt="Monster Tracks">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Monster Tracks</h5>
+                    <p class="card-text game-card-text">Navigate through challenging tracks with your monster truck.</p>
+                    <a href="https://monstertracks.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://w8.snokido.com/img/large/sword-masters.jpg?230324" class="card-img-top" alt="Sword Masters">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Sword Masters</h5>
+                    <p class="card-text game-card-text">Fight epic battles and become the master of the sword.</p>
+                    <a href="https://swordmasters.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://w0.peakpx.com/wallpaper/845/480/HD-wallpaper-crazy-race-stunt-race-crazy-dirt-bike-suzuki-motocross-1920x1200.jpg" class="card-img-top" alt="Crazy Bikes">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Crazy Bikes</h5>
+                    <p class="card-text game-card-text">Perform stunts and race through crazy tracks on your bike.</p>
+                    <a href="https://crazybikes.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/WjaeY-CYogY/maxresdefault.jpg" class="card-img-top" alt="Draw To Smash: Logic Puzzle">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Draw To Smash: Logic Puzzle</h5>
+                    <p class="card-text game-card-text">Draw lines to solve puzzles and smash objects.</p>
+                    <a href="https://drawtosmash.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://lh3.games-cdn.com/cz/driving/38976-city-car-driving-simulator-ultimate.jpeg" class="card-img-top" alt="City Star Driving: Stunt Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">City Star Driving: Stunt Master</h5>
+                    <p class="card-text game-card-text">Perform stunts and drive through the city streets.</p>
+                    <a href="https://citystardriving.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/jIJO8T-WPmbYKMARnmMdnDNR51xQlBUD_PI4HeKl-xwcKTk2WKRw0SD_ed1YlvWe4w=w526-h296-rw" class="card-img-top" alt="Murder">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Murder</h5>
+                    <p class="card-text game-card-text">Solve murder mysteries and uncover the truth.</p>
+                    <a href="https://murdergame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://cdn.prod.website-files.com/5f3502b47fc55b9de26558f8/5f3684e0e484ac81c5c79547_heroHOS.png" class="card-img-top" alt="Hills of Steel">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Hills of Steel</h5>
+                    <p class="card-text game-card-text">Battle with tanks on challenging hills and terrains.</p>
+                    <a href="https://hillsofsteel.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://ubg44.github.io/RocketSoccerDerby/screenshots/2.jpg" class="card-img-top" alt="Rocket Soccer Derby">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rocket Soccer Derby</h5>
+                    <p class="card-text game-card-text">Enjoy soccer with a rocket-powered twist.</p>
+                    <a href="https://rocketsoccerderby.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://static.playhop.com/images/7ee39_10152950_18b61/0019ca7bd/2a0000018bed3a75_1f571df/dbe4f03737d41782331d_ea5daa/orig" class="card-img-top" alt="Red Ball 4">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Red Ball 4</h5>
+                    <p class="card-text game-card-text">Help the red ball roll through challenging levels.</p>
+                    <a href="https://redball4.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/d769fe608502e4f17192cf496d1a4b16.jpeg" class="card-img-top" alt="Idle Ants">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Idle Ants</h5>
+                    <p class="card-text game-card-text">Manage an ant colony and watch it grow in this idle game.</p>
+                    <a href="https://idleants.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <!-- New Game Cards -->
+            <div class="card game-card">
+                <img src="https://lh3.googleusercontent.com/5oeB-O-m36k7XZmJ0nGd2BH2HQ6okRk8PymVX_sAXnrt8cD6wrpCkdaeUmjvoAsQkwTB31aOdwlKP4ln2cUh3sq12Ec=s1280-w1280-h800" alt="Tag2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tag2</h5>
+                    <p class="card-text game-card-text">Catch the players in this fast-paced tag game.</p>
+                    <a href="https://tag2game.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/373740bfb89dd3e6c1fb96674148e806.png" class="card-img-top" alt="Who is?">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Who is?</h5>
+                    <p class="card-text game-card-text">Guess the character in this fun and interactive quiz game.</p>
+                    <a href="https://whoisgame.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/716592c9b0a9e2f5e06db8751d8289c6.png" class="card-img-top" alt="School Escape">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">School Escape</h5>
+                    <p class="card-text game-card-text">Solve puzzles and escape from the school.</p>
+                    <a href="https://schoolescape.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.utdstc.com/screen/20d/cbb/20dcbb57fbc6804c010549125854e3c106f8af5bec77102243ecc92da8cea3df:600" alt="Stickman Dragon Fight">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Dragon Fight</h5>
+                    <p class="card-text game-card-text">Fight dragons as a stickman in this action-packed game.</p>
+                    <a href="https://stickmandragonfight.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="http://www.mahee.com/cnt_img/014/14220_340.jpg" class="card-img-top" alt="Snake.is MLG Edition">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Snake.is MLG Edition</h5>
+                    <p class="card-text game-card-text">Play the classic Snake game with a twist in this MLG edition.</p>
+                    <a href="https://snakeismlegend.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1705130/header.jpg?t=1671169997" class="card-img-top" alt="Super Liquid Soccer">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Super Liquid Soccer</h5>
+                    <p class="card-text game-card-text">Experience soccer with a unique liquid physics engine.</p>
+                    <a href="https://superliquidsoccer.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/7939e6f122314894c19a77ac73860f06.png" class="card-img-top" alt="War Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">War Master</h5>
+                    <p class="card-text game-card-text">Strategize and lead your army to victory in intense battles.</p>
+                    <a href="https://warmaster.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://static.playhop.com/images/8fa85_2977039_2e42c/e2d2a6479/2a000001852271d9_617ccd9/b393a1d87f6de7be4677_850d75/orig" class="card-img-top" alt="Stick Defenders">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stick Defenders</h5>
+                    <p class="card-text game-card-text">Defend your base from waves of stick enemies.</p>
+                    <a href="https://stickdefenders.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://lh3.googleusercontent.com/mECqshWtqnvNAN4ZJ4RwTGiEPGpDpOUOIHbhCT35EurW9gsGEkBsFgVyK077cmVM_ifuoC6bAUbU_hRE_w4-Dvt38A=s1280-w1280-h800" class="card-img-top" alt="Combat Online">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Combat Online</h5>
+                    <p class="card-text game-card-text">Engage in thrilling combat with players from around the world.</p>
+                    <a href="https://combatonline.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://images.crazygames.com/games/escaping-the-prison/cover-1657103196147.png?auto=format%2Ccompress&q=45&cs=strip&ch=DPR&w=1200&h=630&fit=crop" class="card-img-top" alt="Escaping the Prison">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Escaping the Prison</h5>
+                    <p class="card-text game-card-text">Find your way out of the prison through clever strategies.</p>
+                    <a href="https://escapingtheprison.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://images.crazygames.com/penalty-shooters-2_16x9/20240726040713/penalty-shooters-2_16x9-cover?auto=format%2Ccompress&q=45&cs=strip&ch=DPR&w=1200&h=630&fit=crop" class="card-img-top" alt="Penalty Shooters 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Penalty Shooters 2</h5>
+                    <p class="card-text game-card-text">Take on penalty kicks and save shots in this soccer game.</p>
+                    <a href="https://penaltyshooters2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=314,height=314,fit=cover,f=auto/70e565ff687043e10e150e23d0ae5ea2.png" class="card-img-top" alt="Make it Meme">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Make it Meme</h5>
+                    <p class="card-text game-card-text">Create and share hilarious memes with friends.</p>
+                    <a href="https://makeitmeme.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/eubNIXajXHh5Dk5mwGhAkH16V-ABFzkWcl3G4EhPTQwUqAwVKnhsgZTMlmNz_ZDOAUM=w526-h296-rw" class="card-img-top" alt="Soccer Skills World Cup">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Soccer Skills World Cup</h5>
+                    <p class="card-text game-card-text">Show off your soccer skills in this world cup-themed game.</p>
+                    <a href="https://soccerskillsworldcup.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/-WMbng_OpeeYmoNbMwdci57VtEI8Gzr5Rvu3IeVBppGB8cFGbw58xm4s3sYdy5rXOQI=w526-h296-rw" class="card-img-top" alt="Glam Girl: Dress Up and Makeover">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Glam Girl: Dress Up and Makeover</h5>
+                    <p class="card-text game-card-text">Give the glam girl a stylish makeover and dress her up.</p>
+                    <a href="https://glamgirldressup.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/-Fh5ej5NMMs/maxresdefault.jpg" class="card-img-top" alt="Stickman Climb 2">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stickman Climb 2</h5>
+                    <p class="card-text game-card-text">Help the stickman climb to the top in this challenging game.</p>
+                    <a href="https://stickmanclimb2.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+
+            <!-- New Game Cards -->
+
+
+            <div class="card game-card">
+                <img src="https://img.utdstc.com/screen/c5f/815/c5f81556914dddfe8ac0501855f27ade14504a2dc6826f384b690fefd93f10fa:600" class="card-img-top" alt="Level Devil">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Level Devil</h5>
+                    <p class="card-text game-card-text">Solve challenging puzzles and beat each level with skill and strategy.</p>
+                    <a href="https://leveldevil.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://img.tapimg.net/market/images/8ea9dcc569341412af665513f5d919b6.png?imageView2/2/w/1080/h/1080/q/80/format/jpg/interlace/1/ignore-error/1" class="card-img-top" alt="Combat Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Combat Master</h5>
+                    <p class="card-text game-card-text">Engage in intense combat scenarios and become the master of battle.</p>
+                    <a href="https://combatmaster.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/WAPZRvbXCXM/maxresdefault.jpg" class="card-img-top" alt="Punch Legend Simulator">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Punch Legend Simulator</h5>
+                    <p class="card-text game-card-text">Test your punching skills in this exciting simulator game.</p>
+                    <a href="https://punchlegendsimulator.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/pPCv3_OSThM/hq720.jpg" class="card-img-top" alt="Watermelon Drop">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Watermelon Drop</h5>
+                    <p class="card-text game-card-text">Drop watermelons into the correct baskets to score points.</p>
+                    <a href="https://watermelondrop.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/RKcEZkZ8NZU/hqdefault.jpg" class="card-img-top" alt="Merge Arena">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Merge Arena</h5>
+                    <p class="card-text game-card-text">Merge items to build the ultimate arena and win battles.</p>
+                    <a href="https://mergearena.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://venge.io/Thumbnail-001.jpg" class="card-img-top" alt="Venge.io">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Venge.io</h5>
+                    <p class="card-text game-card-text">Fight against other players in this thrilling multiplayer shooter.</p>
+                    <a href="https://venge.io" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://miro.medium.com/v2/resize:fit:1200/1*sXm0bZO01Mf-XCym4rUwmA.png" class="card-img-top" alt="Vortelli's Pizza Delivery">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Vortelli's Pizza Delivery</h5>
+                    <p class="card-text game-card-text">Deliver pizzas quickly and efficiently in this fast-paced game.</p>
+                    <a href="https://vortellispizzadelivery.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://cdn.now.gg/apps-content/com.newstargames.retrobowl/fullhd-bg/retro-bowl.jpg" alt="Retro Bowl Image" class="card-img-top" alt="Retro Bowl">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Retro Bowl</h5>
+                    <p class="card-text game-card-text">Experience classic football action with this retro-style game.</p>
+                    <a href="https://retrobowl.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+               <img src="https://m.media-amazon.com/images/I/B1KfaS6KVFL.png" class="card-img-top" alt="Stick Merge">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Stick Merge</h5>
+                    <p class="card-text game-card-text">Merge sticks to create powerful weapons and defeat your foes.</p>
+                    <a href="https://stickmerge.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/ThnGqXqKqqY/mqdefault.jpg" class="card-img-top" alt="Blumgi Slime">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Blumgi Slime</h5>
+                    <p class="card-text game-card-text">Control a bouncing slime and navigate through various levels.</p>
+                    <a href="https://blumgislime.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://m.gjcdn.net/game-header/1200/154354-ll-mhxiputa-v4.webp" class="card-img-top" alt="Temple of Boom">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Temple of Boom</h5>
+                    <p class="card-text game-card-text">Explore ancient temples and defeat enemies in explosive action.</p>
+                    <a href="https://templeofboom.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://heardlewordle.io/data/image/game/jumping-shell-unblocked.png" class="card-img-top" alt="Jumping Shell">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Jumping Shell</h5>
+                    <p class="card-text game-card-text">Help the shell jump over obstacles and reach the goal.</p>
+                    <a href="https://jumpingshell.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/T-mKKkr6L_44INEJ-9FlbY15YyRNffcKBHCamZfsSOu6hSdpVFcNfFfBO_HJNyAOrjc=w526-h296-rw" class="card-img-top" alt="Water Color Sort">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Water Color Sort</h5>
+                    <p class="card-text game-card-text">Sort the colored water into the correct glasses.</p>
+                    <a href="https://watercolorsort.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://www.papasgaming.com/wp-content/uploads/2023/09/super-tunnel-rush.jpg" class="card-img-top" alt="Super Tunnel Rush">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Super Tunnel Rush</h5>
+                    <p class="card-text game-card-text">Rush through the tunnel while avoiding obstacles and collecting power-ups.</p>
+                    <a href="https://supertunnelrush.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://iogames.onl/upload/imgs/war-of-sticks.jpg" class="card-img-top" alt="War of Sticks">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">War of Sticks</h5>
+                    <p class="card-text game-card-text">Engage in epic stick battles and conquer your enemies.</p>
+                    <a href="https://warofsticks.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://assets.funnygames.org/5/113355/94201/1200x630/master-chess-multiplayer.webp" class="card-img-top" alt="Master Chess">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Master Chess</h5>
+                    <p class="card-text game-card-text">Play chess against AI or other players in this strategic game.</p>
+                    <a href="https://masterchess.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+
+            <!-- New Game Cards -->
+            <div class="card game-card">
+                <img src="https://assets.funnygames.org/0/24330/78577/672x448/moto-x3m.webp" class="card-img-top" alt="Moto X3M">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Moto X3M</h5>
+                    <p class="card-text game-card-text">Race through obstacle courses with crazy stunts and physics.</p>
+                    <a href="https://moto-x3m.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+              
+          
+            <div class="card game-card">
+                <img src="https://bitlifeonline.io/upload/imgs/drive-mad-2.png" class="card-img-top" alt="Drive Mad">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Drive Mad</h5>
+                    <p class="card-text game-card-text">Test your driving skills with challenging courses.</p>
+                    <a href="https://drive-mad.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://play-lh.googleusercontent.com/ikzqfWg_tsfdzXNPbCKdNSDqEvNeryzCFi1rGArx6A_YYzyjJzeWXplY6cVgPX0xb18=w600-h300-pc0xffffff-pd" class="card-img-top" alt="Zombie Rush">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Zombie Rush</h5>
+                    <p class="card-text game-card-text">Survive the zombie apocalypse in this action-packed game.</p>
+                    <a href="https://zombie-rush.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://cdn.content.jeux123.fr/game-images/bubble-shooter-pro-3_big.webp" class="card-img-top" alt="Bubble Shooter">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Bubble Shooter</h5>
+                    <p class="card-text game-card-text">Shoot and match bubbles to clear the board.</p>
+                    <a href="https://bubble-shooter.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://www.fnfgo.com/wp-content/uploads/2024/08/Ragdoll-Hit-cover-300x177.png" class="card-img-top" alt="Ragdoll Hit">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Ragdoll Hit</h5>
+                    <p class="card-text game-card-text">Throw ragdolls and hit targets in this fun physics game.</p>
+                    <a href="https://ragdoll-hit.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://avatars.mds.yandex.net/get-games/11374519/2a0000018c349b91e1f8d3a2b9cc67ba1aa1/orig" class="card-img-top" alt="Rainbow Obby">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Rainbow Obby</h5>
+                    <p class="card-text game-card-text">Navigate colorful obstacle courses in this platformer.</p>
+                    <a href="https://rainbow-obby.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://forum-files-playcanvas-com.s3.dualstack.eu-west-1.amazonaws.com/original/3X/3/5/359eb1a91da6abdaf0d3c8d0e022e71b29fb0659.png" class="card-img-top" alt="Crazy Cars">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Crazy Cars</h5>
+                    <p class="card-text game-card-text">Drive wild cars through insane tracks and challenges.</p>
+                    <a href="https://crazy-cars.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src=" https://avatars.mds.yandex.net/get-games/1881364/2a0000018c868e0a236068634bcdefd77473/orig" class="card-img-top" alt="Escape from School">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Escape from School</h5>
+                    <p class="card-text game-card-text">Solve puzzles and escape from a tricky school environment.</p>
+                    <a href="https://escape-from-school.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://cdn.content.play123.com/game-images/growing-fish_big_v2.webp" class="card-img-top" alt="Fish Eat Fish">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Fish Eat Fish</h5>
+                    <p class="card-text game-card-text">Grow your fish by eating smaller ones in this aquatic game.</p>
+                    <a href="https://fish-eat-fish.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/-lM8U67pejA/maxresdefault.jpg" class="card-img-top" alt="Football Legends">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Football Legends</h5>
+                    <p class="card-text game-card-text">Become a football star and lead your team to victory.</p>
+                    <a href="https://football-legends.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://tcf.admeen.org/game/17000/16652/400x246/color-tunnel.jpg" class="card-img-top" alt="Tunnel Rush">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tunnel Rush</h5>
+                    <p class="card-text game-card-text">Speed through a fast-paced tunnel and avoid obstacles.</p>
+                    <a href="https://tunnel-rush.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/04/tag.jpg" class="card-img-top" alt="Tag">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tag</h5>
+                    <p class="card-text game-card-text">Play the classic game of tag with new twists and turns.</p>
+                    <a href="https://tag.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://avatars.mds.yandex.net/get-games/3006389/2a000001891a71ba9de5e3f516ceebd782bd/default526x314" class="card-img-top" alt="Nails DIY: Manicure Master">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Nails DIY: Manicure Master</h5>
+                    <p class="card-text game-card-text">Create beautiful nail designs and become a manicure master.</p>
+                    <a href="https://nails-diy-manicure-master.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://cdn-1.webcatalog.io/catalog/poki-brain-test-tricky-puzzles/poki-brain-test-tricky-puzzles-social-preview.png?v=1714778574772" class="card-img-top" alt="Brain Test: Tricky Puzzles">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Brain Test: Tricky Puzzles</h5>
+                    <p class="card-text game-card-text">Challenge your brain with a variety of tricky puzzles.</p>
+                    <a href="https://brain-test-tricky-puzzles.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://i.ytimg.com/vi/aInpuGZ4CjA/maxresdefault.jpg" class="card-img-top" alt="Bullet Bros">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Bullet Bros</h5>
+                    <p class="card-text game-card-text">Blast through enemies with your brothers in this action game.</p>
+                    <a href="https://bullet-bros.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://www.giantbomb.com/a/uploads/scale_small/37/373765/2999292-download%20%282%29.jpeg" class="card-img-top" alt="Combat Reloaded">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Combat Reloaded</h5>
+                    <p class="card-text game-card-text">Engage in fast-paced combat with intense shooting action.</p>
+                    <a href="https://combat-reloaded.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://www.el7z.com/wp-content/uploads/2023/03/%D9%84%D8%B9%D8%A8%D8%A9-Parkour-Race-196.jpg
+" class="card-img-top" alt="Parkour Race">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Parkour Race</h5>
+                    <p class="card-text game-card-text">Race through challenging parkour courses and reach the finish line.</p>
+                    <a href="https://parkour-race.com" class="btn btn-play" target="_blank">Play Now</a>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="https://webgamer.io/games/tribals-io/tribals-io.480x.85pc.webp
+" class="card-img-top" alt="Tribals.io">
+                <div class="game-card-body">
+                    <h5 class="card-title game-card-title">Tribals.io</h5>
+                    <p class="card-text game-card-text">Survive and thrive in a multiplayer tribal adventure.</p>
+                    <a href="https://tribals.io" class="btn btn-play" target="_blank">Play Now</a>
+                 </div>
+             </div>
+
+
+
+            
+       
+      <!-- Game 2 -->
+      <div class="card game-card">
+         <img src="https://images5.alphacoders.com/614/614325.jpg" class="card-img-top" alt="Pac-Man">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Pac-Man</h5>
+            <p class="card-text game-card-text">Guide Pac-Man through the maze and eat all the dots while avoiding ghosts.</p>
+            <a href="https://g.co/kgs/i2kaLi9" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 3 -->
+      <div class="card game-card">
+         <img src="https://media.gettyimages.com/id/1477038133/video/seamless-loop-abstract-colorful-motion-blocks-background-puzzle-game-3d-illustration-to.jpg?s=640x640&k=20&c=Hj-TyOm-wjvLLTZc7CtHIu9THF7v5YZ6oWgr3gXc924=" class="card-img-top" alt="Tetris">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Tetris</h5>
+            <p class="card-text game-card-text">Arrange falling blocks to complete lines and clear the board.</p>
+            <a href="https://tetris.com/play-tetris" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 4 -->
+      <div class="card game-card">
+         <img src="https://images4.alphacoders.com/116/1166928.jpg" class="card-img-top" alt="Space Invaders">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Space Invaders</h5>
+            <p class="card-text game-card-text">Defend Earth from waves of alien invaders in this classic arcade game.</p>
+            <a href="https://elgoog.im/space-invaders/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 5 -->
+      <div class="card game-card">
+         <img src="https://i.pinimg.com/736x/26/37/20/263720999b486117efc2b810291d5735.jpg" class="card-img-top" alt="Donkey Kong">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Donkey Kong</h5>
+            <p class="card-text game-card-text">Help Mario rescue his girlfriend from the giant ape, Donkey Kong.</p>
+            <a href="https://freekong.org/#google_vignette" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 6 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/389/451/577/video-game-galaga-wallpaper-preview.jpg" class="card-img-top" alt="Galaga">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Galaga</h5>
+            <p class="card-text game-card-text">Take control of a spacecraft and shoot down enemy aliens in this space shooter.</p>
+            <a href="https://www.retrogames.cz/play_018-NES.php" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 7 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/471/160/863/frogger-wallpaper-preview.jpg" class="card-img-top" alt="Frogger">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Frogger</h5>
+            <p class="card-text game-card-text">Help Frogger cross the busy roads and rivers to reach his home safely.</p>
+            <a href="https://www.crazygames.com/game/frogger" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 8 -->
+      <div class="card game-card">
+         <img src="https://w0.peakpx.com/wallpaper/39/694/HD-wallpaper-video-game-eve-online-asteroid-space-spaceship.jpg" class="card-img-top" alt="Asteroids">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Asteroids</h5>
+            <p class="card-text game-card-text">Navigate your spaceship and shoot down asteroids and flying saucers.</p>
+            <a href="https://freeasteroids.org/#google_vignette" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 9 -->
+      <div class="card game-card">
+         <img src="https://gamechronicles.com/wp-content/uploads/2020/11/bubblebob4f.jpg" class="card-img-top" alt="Bubble Bobble">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Bubble Bobble</h5>
+            <p class="card-text game-card-text">Trap enemies in bubbles and burst them to clear the stage.</p>
+            <a href="https://arcadespot.com/game/bubble-bobble/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 10 -->
+      <div class="card game-card">
+         <img src="https://imgcdn.stablediffusionweb.com/2024/3/23/8e87a420-32c4-475d-859a-51c5dba5a870.jpg" class="card-img-top" alt="Pong">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Pong</h5>
+            <p class="card-text game-card-text">The classic table tennis game where you control paddles to hit the ball.</p>
+            <a href="https://www.ponggame.org/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 11 -->
+      <div class="card game-card">
+         <img src="https://w0.peakpx.com/wallpaper/180/624/HD-wallpaper-doom-eternal-battle.jpg" class="card-img-top" alt="Arkanoid">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Arkanoid</h5>
+            <p class="card-text game-card-text">Break all the bricks with a paddle and ball in this addictive game.</p>
+            <a href="https://play.arkanoid.online/?lang=en" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 12 -->
+      <div class="card game-card">
+         <img src="https://w0.peakpx.com/wallpaper/210/100/HD-wallpaper-the-joust-renaissance-fair-medieval-horseback-knight.jpg" class="card-img-top" alt="Joust">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Joust</h5>
+            <p class="card-text game-card-text">Fly on a bird and battle enemies in this unique arcade game.</p>
+            <a href="https://arcadespot.com/game/joust/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 13 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/347/62/408/movie-wreck-it-ralph-q-bert-wreck-it-ralph-ralph-wreck-it-ralph-wallpaper-preview.jpg" class="card-img-top" alt="Q*bert">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Q*bert</h5>
+            <p class="card-text game-card-text">Guide Q*bert through a pyramid of cubes and change their colors.</p>
+            <a href="https://freeqbert.org/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 14 -->
+      <div class="card game-card">
+         <img src="https://www.hdwallpapers.in/download/tempest_4k_hd_fortnite-2560x1440.jpg" class="card-img-top" alt="Tempest">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Tempest</h5>
+            <p class="card-text game-card-text">Shoot down enemies in a 3D tube-shaped environment.</p>
+            <a href="https://arcadespot.com/game/tempest-2000/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 15 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/694/276/936/dungeon-defenders-2-wallpaper-preview.jpg" class="card-img-top" alt="Defender">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Defender</h5>
+            <p class="card-text game-card-text">Protect your planet from alien invaders in this fast-paced shooter.</p>
+            <a href="https://arcadespot.com/game/defender/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 16 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/608/787/755/gauntlet-2014-game-hd-wallpaper-preview.jpg" class="card-img-top" alt="Gauntlet">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Gauntlet</h5>
+            <p class="card-text game-card-text">Team up with friends to explore dungeons and defeat monsters.</p>
+            <a href="https://arcadespot.com/game/gauntlet/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 17 -->
+      <div class="card game-card">
+         <img src="https://i.ytimg.com/vi/NaiqJWnH1R0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD7oitvquRgRtsC5gtVTntIwRaeag" class="card-img-top" alt="Dig Dug">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Dig Dug</h5>
+            <p class="card-text game-card-text">Dig through the ground and defeat enemies by inflating them.</p>
+            <a href="https://arcadespot.com/game/dig-dug/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 18 -->
+      <div class="card game-card">
+         <img src="https://images7.alphacoders.com/881/881338.jpg" class="card-img-top" alt="Ms Pac-Man">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Ms Pac-Man</h5>
+            <p class="card-text game-card-text">Help Ms. Pac-Man navigate mazes and eat dots while avoiding ghosts.</p>
+            <a href="https://www.mspacman1.com/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 19 -->
+      <div class="card game-card">
+         <img src="https://i.ytimg.com/vi/MKrdUdQhuVI/maxresdefault.jpg" class="card-img-top" alt="Elevator Action">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Elevator Action</h5>
+            <p class="card-text game-card-text">Navigate a building using elevators and defeat enemies in this action game.</p>
+            <a href="https://arcadespot.com/game/elevator-action/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 20 -->
+      <div class="card game-card">
+         <img src="https://i.ytimg.com/vi/Rdea5u9VQ8U/maxresdefault.jpg" class="card-img-top" alt="Robotron 2084">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Robotron 2084</h5>
+            <p class="card-text game-card-text">Defend the last human family from waves of robots in this classic shooter.</p>
+            <a href="https://www.retrogames.cz/play_1124-Atari7800.php" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 21 -->
+      <div class="card game-card">
+         <img src="https://img.freepik.com/premium-photo/photo-panning-formula-one-cars-overtaking-each-other-asphalt-track-with-neon-generative-ai_667511-3304.jpg" class="card-img-top" alt="Pole Position">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Pole Position</h5>
+            <p class="card-text game-card-text">Race in a Formula 1 car on a challenging track in this racing game.</p>
+            <a href="https://arcadespot.com/game/f1-pole-position/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 22 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/932/567/621/dragon-handsome-the-hobbit-the-hobbit-wallpaper-preview.jpg">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Dragon's Lair</h5>
+            <p class="card-text game-card-text">Guide Dirk the Daring through a fantasy adventure to rescue the princess.</p>
+            <a href="https://arcadespot.com/game/dragons-lair/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 23 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/951/583/798/fantasy-art-warrior-dark-souls-iii-dark-souls-wallpaper-thumb.jpg" class="card-img-top" alt="Tempest 2000">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Tempest 2000</h5>
+            <p class="card-text game-card-text">A modern take on the classic Tempest with enhanced graphics and gameplay.</p>
+            <a href="https://arcadespot.com/game/tempest-2000/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 24 -->
+      <div class="card game-card">
+         <img src="https://wallpapercave.com/wp/wp9093713.jpg" class="card-img-top" alt="R-Type">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">R-Type</h5>
+            <p class="card-text game-card-text">A classic side-scrolling shooter with intense action and challenging enemies.</p>
+            <a href="https://arcadespot.com/game/r-type/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 25 -->
+      <div class="card game-card">
+         <img src="https://games.lol/wp-content/uploads/2019/08/bubble-mania-pc-full-version.jpg" class="card-img-top" alt="Bubble Mania">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Bubble Mania</h5>
+            <p class="card-text game-card-text">Match and pop bubbles in this fun and colorful puzzle game.</p>
+            <a href="https://yandex.com/games/app/231024" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 26 -->
+      <div class="card game-card">
+         <img src="https://wallpapercave.com/wp/wp10110861.jpg" class="card-img-top" alt="Centipede">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Atari-Centipede</h5>
+            <p class="card-text game-card-text">Shoot down the segments of a centipede while avoiding other critters.</p>
+            <a href="https://arcadespot.com/game/atari-centipede/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 27 -->
+      <div class="card game-card">
+         <img src="https://images7.alphacoders.com/136/1363964.jpeg" class="card-img-top" alt="Super Breakout">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Super Breakout</h5>
+            <p class="card-text game-card-text">Break all the bricks using a paddle and ball in this enhanced version of Breakout.</p>
+            <a href="https://arcadespot.com/game/super-breakout/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 28 -->
+      <div class="card game-card">
+         <img src="https://c4.wallpaperflare.com/wallpaper/300/402/378/vsales-digital-art-digital-artwork-illustration-hd-wallpaper-preview.jpg" class="card-img-top" alt="Jungle King">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Jungle King</h5>
+            <p class="card-text game-card-text">Swing through the jungle and avoid obstacles to save the princess.</p>
+            <a href="https://www.crazygamesonline.com/game/play/jungle-king" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 29 -->
+      <div class="card game-card">
+         <img src="https://w0.peakpx.com/wallpaper/969/622/HD-wallpaper-dirt-rally-2-volkswagen-racing-games-games.jpg" class="card-img-top" alt="Rally-X">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Rally-X</h5>
+            <p class="card-text game-card-text">Race through a maze collecting flags while avoiding enemy cars.</p>
+            <a href="https://www.retrogames.cz/play_1341-SG1000.php" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+      <!-- Game 30 -->
+      <div class="card game-card">
+         <img src="https://rare-gallery.com/uploads/posts/112786-cronix-best-games-2015-game-arcade-indie-pc.jpg" class="card-img-top" alt="Zaxxon">
+         <div class="game-card-body">
+            <h5 class="card-title game-card-title">Zaxxon</h5>
+            <p class="card-text game-card-text">Navigate a 3D space environment while battling enemy craft and avoiding obstacles.</p>
+            <a href="https://arcadespot.com/game/zaxxon-3d/" class="btn btn-play">Play Now</a>
+         </div>
+      </div>
+
+      <script>
+         document.getElementById('searchInput').addEventListener('input', function() {
+             const query = this.value.toLowerCase();
+             const gameCards = document.querySelectorAll('.game-card');
+             
+             gameCards.forEach(card => {
+                 const title = card.querySelector('.game-card-title').textContent.toLowerCase();
+                 const text = card.querySelector('.game-card-text').textContent.toLowerCase();
+                 
+                 if (title.includes(query) || text.includes(query)) {
+                     card.style.display = '';
+                 } else {
+                     card.style.display = 'none';
+                 }
+             });
+         });
+      </script>
+      <script>
+         document.getElementById('searchInput').addEventListener('input', function() {
+             const query = this.value.toLowerCase();
+             const gameCards = document.querySelectorAll('.game-card');
+             
+             gameCards.forEach(card => {
+                 const title = card.querySelector('.game-card-title').textContent.toLowerCase();
+                 const text = card.querySelector('.game-card-text').textContent.toLowerCase();
+                 
+                 if (title.includes(query) || text.includes(query)) {
+                     card.style.display = '';
+                 } else {
+                     card.style.display = 'none';
+                 }
+             });
+         });
+
+
+
+<!-- JavaScript for Search Functionality -->
+    <script>
+        document.getElementById('searchInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                // Redirect to a search results page or handle search input
+                const query = encodeURIComponent(this.value);
+                window.location.href = `https://yoursearchpage.com/search?query=${query}`;
+            }
+        });
+    </script>
+
+
+<script>
+        // JavaScript to handle the click event and trigger the blast party animation
+        document.getElementById('headerImage').addEventListener('click', function() {
+            var img = this;
+            img.classList.add('blast-party');
+            setTimeout(function() {
+                img.classList.remove('blast-party');
+                img.style.animation = 'float 4s ease-in-out infinite'; // Reapply the float animation
+            }, 1000); // Duration of the blast party animation
+        });
+    </script>
+
+
+ <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const titleSpans = document.querySelectorAll('.welcome-title span');
+            let index = 0;
+            
+            function animateLetters() {
+                titleSpans.forEach(span => span.classList.remove('staggered-animation')); // Reset animations
+                titleSpans[index].classList.add('staggered-animation'); // Add animation to the current span
+                index = (index + 1) % titleSpans.length; // Move to the next letter
+            }
+
+            // Trigger the first animation
+            animateLetters();
+
+            // Set up interval to repeat animation every 30 seconds
+            setInterval(animateLetters, 30000);
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+      </script>
+      <!-- Bootstrap JS, Popper.js, and jQuery -->
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+   </body>
+</html>
