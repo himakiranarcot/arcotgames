@@ -8,19 +8,21 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
     <style>
+        /* CSS */
         body {
-            background-color: #000000; /* Neon Purple Background */
-            color: #fff; /* Ensure text is visible on neon background */
+            background-color: #0f0f0f; /* Dark background for a neon effect */
+            color: #fff; /* Ensure text is visible on dark background */
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            font-family: Arial, sans-serif; /* Ensure consistent font family */
+            font-family: 'Arial', sans-serif; /* Ensure consistent font family */
             overflow-x: hidden; /* Prevent horizontal scrolling */
-            position: relative; /* Ensure positioning context for the star and bubble effects */
+            position: relative; /* Ensure positioning context for effects */
         }
+
         .header-container {
             position: relative;
             display: flex;
@@ -33,77 +35,89 @@
             margin: 0 auto;
             padding: 20px;
             overflow: hidden;
+            z-index: 2; /* Ensure header is above other content */
         }
+
         .header-container img {
             width: 100%;
             max-height: 50vh; /* Maximum height relative to viewport height */
             object-fit: cover; /* Cover the container */
             z-index: 1; /* Ensure image is below the title */
-            animation: float 3s ease-in-out infinite; /* More noticeable floating animation */
+            animation: float 3s ease-in-out infinite; /* Floating animation */
+            border: 5px solid #ff77ff; /* Neon pink border */
+            box-shadow: 0 0 10px #ff77ff, 0 0 20px #ff77ff; /* Reduced neon glow effect */
+            border-radius: 20px; /* Rounded corners */
         }
+
         @keyframes float {
             0% {
                 transform: translateY(0);
             }
             50% {
-                transform: translateY(-20px); /* Increased movement for a more noticeable effect */
+                transform: translateY(-20px); /* Increased movement for more effect */
             }
             100% {
                 transform: translateY(0);
             }
         }
+
         .welcome-title {
             font-size: 2rem; /* Adjusted font size */
             font-weight: 700; /* Bold font weight */
             margin: 0;
-            color: #fff; /* Ensure text is visible on dark background */
+            color: #ff77ff; /* Neon pink color */
             position: absolute;
             top: 65%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2; /* Ensure title is above the image */
-            background: rgba(0, 0, 0, 0.5); /* Optional: Add background for readability */
-            padding: 10px 20px; /* Add padding for better visual appeal */
+            background: rgba(0, 0, 0, 0.6); /* Optional: Darker background for readability */
+            padding: 10px 20px; /* Padding for better visual appeal */
             border-radius: 10px; /* Rounded corners */
             font-family: 'Cinzel', serif; /* Modern, serif font family */
+            text-shadow: 0 0 10px #ff77ff; /* Neon glow effect */
             max-width: 90%; /* Ensure it doesn't overflow */
             white-space: nowrap; /* Prevent text wrapping */
-            word-wrap: break-word; /* Allow breaking on long words */
         }
+
         .search-bar {
             position: relative;
-            max-width: 1000px; /* Wider width for larger screens */
-            width: 90%; /* Ensure it is centered */
-            margin-top: 20px; /* Space below the title */
+            max-width: 1000px;
+            width: 90%;
+            margin-top: 20px;
             display: flex;
-            justify-content: center; /* Center-align the search bar */
+            justify-content: center;
         }
+
         .search-bar input {
-            padding-left: 40px; /* Increased padding for the search icon */
+            padding-left: 40px;
             border-radius: 25px;
             border: none;
-            height: 50px; /* Increased height for a more prominent look */
+            height: 50px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            width: 100%; /* Ensure the input fills the search bar */
-            background-color: #ffffff; /* White background for the input */
-            color: #333; /* Dark text color for contrast */
-            font-size: 1.1rem; /* Slightly larger font size */
+            width: 100%;
+            background-color: #222; /* Dark background for the search bar */
+            color: #fff;
+            font-size: 1.1rem;
             outline: none;
-            transition: box-shadow 0.3s, border-color 0.3s; /* Smooth transition */
+            transition: box-shadow 0.3s, border-color 0.3s;
         }
+
         .search-bar input:focus {
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.8), 0 0 10px rgba(0, 0, 255, 0.8); /* Pink and purple neon glow effect */
-            border: 2px solid rgba(255, 0, 255, 0.8); /* Pink border on focus */
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.8), 0 0 10px rgba(0, 0, 255, 0.8);
+            border: 2px solid rgba(255, 0, 255, 0.8);
         }
+
         .search-bar .fa-search {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #007bff; /* Neon blue color */
-            font-size: 1.4rem; /* Adjusted size */
-            text-shadow: 0 0 5px #007bff; /* Glowing effect */
+            color: #00bfff; /* Neon blue color */
+            font-size: 1.4rem;
+            text-shadow: 0 0 5px #00bfff;
         }
+
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
@@ -114,51 +128,58 @@
             max-width: 1200px;
             margin: 0 auto; /* Center the grid within the container */
         }
+
         .game-card {
-            background-color: #000000; /* Neon Purple Background for the card */
-            border: 1px solid #6a0dad; /* Darker shade of neon purple for border */
-            border-radius: 12px; /* Slightly larger radius for a modern look */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Enhanced 3D shadow */
+            background-color: #1a1a1a; /* Dark background for the card */
+            border: 1px solid #6a0dad; /* Neon purple border */
+            border-radius: 12px; /* Modern look */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Enhanced shadow */
             overflow: hidden;
             display: flex;
             flex-direction: column;
             transition: transform 0.3s, box-shadow 0.3s; /* Smooth transition */
         }
+
         .game-card:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.8), 0 0 20px rgba(138, 43, 226, 0.8); /* Pink and purple neon glow */
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.8), 0 0 20px rgba(138, 43, 226, 0.8); /* Neon glow effect */
         }
+
         .game-card img {
             width: 100%;
-            height: 180px; /* Adjusted height for better visual balance */
+            height: 180px; /* Adjusted height for visual balance */
             object-fit: cover;
         }
+
         .game-card-body {
-            padding: 20px; /* Increased padding for a more spacious feel */
+            padding: 20px; /* Spacious feel */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            flex-grow: 1; /* Ensure body grows to fill the available space */
+            flex-grow: 1; /* Ensure body grows to fill space */
         }
+
         .game-card-title {
-            font-size: 1.6rem; /* Slightly larger font size */
+            font-size: 1.6rem; /* Larger font size */
             margin-bottom: 10px;
-            color: #fff; /* White text for contrast */
-            font-weight: bold; /* Increased font weight for emphasis */
-            text-align: center; /* Center align the text */
-            padding: 10px 0; /* Add padding for spacing */
-            border-bottom: 2px solid #6a0dad; /* Optional: Add a border bottom for emphasis */
+            color: #ff77ff; /* Neon pink color */
+            font-weight: bold; /* Emphasis */
+            text-align: center; /* Center align */
+            padding: 10px 0; /* Padding for spacing */
+            border-bottom: 2px solid #6a0dad; /* Bottom border for emphasis */
+            text-shadow: 0 0 10px #ff77ff; /* Neon glow effect */
         }
+
         .game-card-text {
-            font-size: 1.2rem; /* Slightly larger font size for modern look */
+            font-size: 1.2rem; /* Modern look */
             margin-bottom: 15px;
-            color: #e0e0e0; /* Lighter color for better readability */
-            line-height: 1.6; /* Increase line-height for better readability */
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6); /* More noticeable text shadow */
-            font-family: 'Arial', sans-serif; /* Modern font family */
+            color: #e0e0e0; /* Light color for readability */
+            line-height: 1.6; /* Better readability */
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6); /* More noticeable shadow */
         }
+
         .btn-play {
-            background: linear-gradient(45deg, #007bff, #0056b3); /* Gradient background */
+            background: linear-gradient(45deg, #00bfff, #0056b3); /* Gradient background */
             color: #fff;
             border: none;
             border-radius: 25px; /* Rounded corners */
@@ -167,146 +188,123 @@
             font-weight: bold;
             text-transform: uppercase;
             text-decoration: none; /* Remove underline */
-            display: inline-block; /* Allows padding to apply */
-            transition: background 0.3s, box-shadow 0.3s; /* Smooth transition */
+            display: inline-block; /* Padding effect */
+            transition: background 0.3s, box-shadow 0.3s, transform 0.3s; /* Smooth transition */
+            text-align: center; /* Center text alignment */
+            line-height: 1.5; /* Better vertical alignment */
+            position: relative; /* Position for shadow effect */
         }
+
+        .btn-play::before {
+            content: ''; /* No text, just a pseudo-element */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3); /* Shadow behind button */
+            border-radius: 25px; /* Match border radius */
+            transform: translate(-50%, -50%) scale(1.1); /* Slightly larger for shadow effect */
+            z-index: -1; /* Ensure it stays behind the button */
+            transition: opacity 0.3s;
+        }
+
+        .btn-play:hover::before {
+            opacity: 0.4; /* Slightly more visible shadow on hover */
+        }
+
         .btn-play:hover {
             background: linear-gradient(45deg, #0056b3, #003d7a); /* Darker gradient on hover */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slight shadow effect */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); /* Enhanced shadow effect */
+            transform: translateY(-4px); /* Lift effect */
         }
-        /* Center-align button within the card body */
-        .game-card-body .btn-play {
-            margin-top: auto; /* Push button to the bottom of the card body */
-            align-self: center; /* Center the button horizontally */
-        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .header-container img {
-                max-height: 40vh; /* Adjust height for medium-sized screens */
+                max-height: 40vh; /* Adjust height for medium screens */
             }
         }
+
         @media (max-width: 992px) {
             .welcome-title {
-                font-size: 1.8rem; /* Adjust font size for smaller screens */
+                font-size: 1.8rem; /* Smaller screens */
                 padding: 8px 16px; /* Adjust padding */
             }
         }
+
         @media (max-width: 768px) {
             .search-bar input {
-                font-size: 1rem; /* Smaller font size for tablets */
+                font-size: 1rem; /* Tablets */
             }
             .game-card img {
-                height: 150px; /* Adjusted height for smaller screens */
+                height: 150px; /* Smaller screens */
             }
             .welcome-title {
-                font-size: 1.6rem; /* Smaller font size for mobile */
+                font-size: 1.6rem; /* Mobile */
                 padding: 6px 12px; /* Adjust padding */
             }
         }
+
         @media (max-width: 576px) {
             .search-bar input {
-                font-size: 0.9rem; /* Smaller font size for mobile devices */
+                font-size: 0.9rem; /* Small devices */
+                padding-left: 30px;
             }
             .game-card {
-                border-radius: 8px; /* Smaller border radius for mobile */
-            }
-            .game-card-title {
-                font-size: 1.4rem; /* Smaller title font size */
-            }
-            .game-card-text {
-                font-size: 1rem; /* Smaller text size */
+                border: 1px solid #ff77ff; /* Adjust border color for mobile */
             }
         }
-        /* Enhanced Bubble Effect */
+
+        /* Bubbles */
         .bubbles {
             position: absolute;
             bottom: 0;
-            left: 50%;
+            left: 0;
             width: 100%;
-            height: 150px; /* Increased height for more bubble space */
+            height: 100%;
+            pointer-events: none; /* Prevent interaction with bubbles */
             overflow: hidden;
-            transform: translateX(-50%);
-            z-index: 0; /* Place bubbles behind the header image */
+            z-index: 0; /* Ensure bubbles are behind other content */
         }
+
         .bubble {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            opacity: 0.8;
-            animation: bubble-rise 8s infinite;
-            animation-timing-function: ease-in-out; /* Smooth rising effect */
-        }
-        .bubble:nth-child(1) {
-            width: 50px;
-            height: 50px;
-            bottom: 0;
-            left: 10%;
-            animation-delay: 0s;
+            background: rgba(255, 255, 255, 0.5);
             opacity: 0.7;
+            animation: bubble-float 6s infinite;
         }
-        .bubble:nth-child(2) {
-            width: 70px;
-            height: 70px;
-            bottom: 0;
-            left: 25%;
-            animation-delay: 2s;
-            opacity: 0.8;
-        }
-        .bubble:nth-child(3) {
-            width: 90px;
-            height: 90px;
-            bottom: 0;
-            left: 40%;
-            animation-delay: 4s;
-            opacity: 0.6;
-        }
-        .bubble:nth-child(4) {
-            width: 60px;
-            height: 60px;
-            bottom: 0;
-            left: 60%;
-            animation-delay: 6s;
-            opacity: 0.7;
-        }
-        .bubble:nth-child(5) {
-            width: 80px;
-            height: 80px;
-            bottom: 0;
-            left: 75%;
-            animation-delay: 8s;
-            opacity: 0.8;
-        }
-        @keyframes bubble-rise {
+
+        @keyframes bubble-float {
             0% {
-                transform: translateY(0);
-                opacity: 0.8;
-            }
-            50% {
-                transform: translateY(-300px) scale(1.2); /* Increased rise distance and size for effect */
-                opacity: 0.5;
+                transform: translateY(100%) scale(1);
+                opacity: 0.7;
             }
             100% {
-                transform: translateY(-600px) scale(1); /* Further increase rise distance for effect */
+                transform: translateY(-100%) scale(1.5);
                 opacity: 0;
             }
         }
-        /* Star Effect */
+
+        /* Stars */
         .stars {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Ensure stars don't interfere with other elements */
-            z-index: 1; /* Place stars between bubbles and other content */
-            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
         }
+
         .star {
             position: absolute;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.8);
             animation: star-float 10s infinite;
         }
+
         .star:nth-child(1) {
             width: 10px;
             height: 10px;
@@ -314,6 +312,7 @@
             left: 20%;
             animation-delay: 0s;
         }
+
         .star:nth-child(2) {
             width: 15px;
             height: 15px;
@@ -321,6 +320,7 @@
             left: 50%;
             animation-delay: 2s;
         }
+
         .star:nth-child(3) {
             width: 20px;
             height: 20px;
@@ -328,6 +328,7 @@
             left: 70%;
             animation-delay: 4s;
         }
+
         .star:nth-child(4) {
             width: 12px;
             height: 12px;
@@ -335,6 +336,7 @@
             left: 40%;
             animation-delay: 6s;
         }
+
         @keyframes star-float {
             0% {
                 transform: translateY(0) translateX(0) rotate(0);
@@ -381,7 +383,7 @@
 
     <!-- Games Grid -->
     <div class="games-grid">
-        <!-- Existing Game Cards -->
+        <!-- Game Cards -->
         <div class="card game-card">
             <img src="https://w0.peakpx.com/wallpaper/608/728/HD-wallpaper-super-mario-character-mario-super-mario-games-ai-artist-artwork-digital-art.jpg" class="card-img-top" alt="Super Mario">
             <div class="game-card-body">
@@ -389,8 +391,15 @@
                 <p class="card-text game-card-text">Join Mario in his exciting adventures across the Mushroom Kingdom.</p>
                 <a href="https://supermarioplay.com" class="btn btn-play" target="_blank">Play Now</a>
             </div>
-        </div> 
+        </div>
+        
+        
+        
 
+
+       
+       
+      
     
 
 
@@ -2483,9 +2492,7 @@
             <p class="card-text game-card-text">Navigate a 3D space environment while battling enemy craft and avoiding obstacles.</p>
             <a href="https://arcadespot.com/game/zaxxon-3d/" class="btn btn-play">Play Now</a>
          </div>
-      </div>
-
-      <script>
+      </div>      <script>
          document.getElementById('searchInput').addEventListener('input', function() {
              const query = this.value.toLowerCase();
              const gameCards = document.querySelectorAll('.game-card');
@@ -2519,10 +2526,57 @@
              });
          });
 
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBar = document.querySelector('.search-bar');
+            
+            searchInput.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    searchBar.classList.add('expanded');
+                } else {
+                    searchBar.classList.remove('expanded');
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+
+ <!-- JavaScript for Search Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const searchIcon = document.getElementById('searchIcon');
+
+            function handleSearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Example: Log the search query to the console
+                    console.log(`Searching for: ${query}`);
+                    // Example: Redirect to a search results page
+                    // window.location.href = `/search-results.html?q=${encodeURIComponent(query)}`;
+                }
+            }
+
+            searchIcon.addEventListener('click', handleSearch);
+
+            searchInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+        });
+    </script>
+
 
 
 <!-- JavaScript for Search Functionality -->
-    <script>
+   
+<script>
         document.getElementById('searchInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 // Redirect to a search results page or handle search input
